@@ -97,12 +97,14 @@ button { font: inherit; color: inherit; }
 }
 .bar-name { padding-block: 12px; text-decoration: none; white-space: nowrap; justify-self: start; }
 .bar-menu { background: none; border: 0; padding: 10px 12px; text-transform: uppercase; font-weight: 500; cursor: pointer; }
-.bar-sound { justify-self: end; display: grid; place-items: center; width: 40px; height: 40px; margin-right: -10px; background: none; border: 0; padding: 0; cursor: pointer; }
+.bar-sound { justify-self: end; display: flex; align-items: center; gap: 8px; min-width: 40px; height: 40px; margin-right: -10px; padding: 0 10px; background: none; border: 0; color: inherit; font: inherit; text-transform: uppercase; cursor: pointer; }
 .bar-sound svg { fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
 .bar-sound .spk { fill: currentColor; stroke: none; }
 .bar-sound .wave { display: none; }
 .bar-sound[aria-pressed="true"] .wave { display: inline; }
 .bar-sound[aria-pressed="true"] .cross { display: none; }
+.bar-sound[aria-pressed="true"] .wave { animation: beat 1.28s ease-in-out infinite; }
+@keyframes beat { 50% { opacity: 0.35; } }
 
 /* Menu panel */
 .menu {
@@ -320,6 +322,7 @@ button { font: inherit; color: inherit; }
   .strip { gap: 12px; }
   .lb-bar { justify-content: center; }
   .bar { grid-template-columns: auto auto minmax(0, 1fr); column-gap: 12px; }
+  .bar-sound-l { display: none; }
   .m-projects a, .m-pages a { padding-block: 6px; }
   .peek { display: none; }
 }
@@ -329,6 +332,7 @@ button { font: inherit; color: inherit; }
   .mq-track { animation: none; }
   .js .ph::after { animation: none; }
   .menu, .menu.open { transition: none; }
+  .bar-sound .wave { animation: none !important; }
 }
 
 </style>
@@ -339,8 +343,8 @@ button { font: inherit; color: inherit; }
 <header class="bar">
   <a class="bar-name" href="#apie">Steponas Nemira</a>
   <button class="bar-menu" type="button" id="menu-btn" aria-expanded="false" aria-controls="menu">Menu</button>
-  <button class="bar-sound" type="button" id="sound-btn" aria-pressed="false" aria-label="Garsas išjungtas">
-    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path class="spk" d="M3 9h4l5-4v14l-5-4H3z"/><path class="wave" d="M15.5 8.5a5 5 0 0 1 0 7M18 6a8.5 8.5 0 0 1 0 12"/><path class="cross" d="M16 9l6 6M22 9l-6 6"/></svg>
+  <button class="bar-sound" type="button" id="sound-btn" aria-pressed="false" aria-label="Įjungti muziką">
+    <span class="bar-sound-l" aria-hidden="true">Muzika</span><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path class="spk" d="M3 9h4l5-4v14l-5-4H3z"/><path class="wave" d="M15.5 8.5a5 5 0 0 1 0 7M18 6a8.5 8.5 0 0 1 0 12"/><path class="cross" d="M16 9l6 6M22 9l-6 6"/></svg>
   </button>
 </header>
 
@@ -512,10 +516,10 @@ button { font: inherit; color: inherit; }
   const hasIO = 'IntersectionObserver' in window;
   $$('.yr').forEach(n => { n.textContent = new Date().getFullYear(); });
 
-  /* ---------- Sound: synthesized with Web Audio, off by default ---------- */
+  /* ---------- Sound: synthesized with Web Audio, off by default; the same switch plays the music ---------- */
   const Sound = (() => {
     let ctx = null, master = null, on = false;
-    try { on = localStorage.getItem('sn-garsas') === 'on'; } catch (e) {}
+    try { on = localStorage.getItem('sn-muzika') === 'on'; } catch (e) {}
     const ensure = () => {
       if (!ctx) {
         const AC = window.AudioContext || window.webkitAudioContext;
@@ -564,17 +568,237 @@ button { font: inherit; color: inherit; }
     };
     return {
       get on() { return on; },
-      set(v) { on = v; try { localStorage.setItem('sn-garsas', v ? 'on' : 'off'); } catch (e) {} if (v) ensure(); },
+      set(v) {
+        on = v;
+        try { localStorage.setItem('sn-muzika', v ? 'on' : 'off'); } catch (e) {}
+        if (v) Music.start(ensure()); else Music.stop();
+      },
+      audio: () => ensure(),
       play(n) { if (!on) return; try { kit[n](); } catch (e) {} }
+    };
+  })();
+  /* ---------- Music: generative chill jazz (Rhodes, walking bass, brushed swing, vibes), off by default ---------- */
+  const Music = (() => {
+    const BPM = 94, SPB = 60 / BPM, BAR = SPB * 4, SWING = 0.64, LEVEL = 0.5;
+    // chord: [bass root (MIDI), voicing intervals above the root, scale family]
+    const CH = {
+      Fmaj9: [41, [4, 7, 11, 14], 'maj'], Em7: [40, [3, 7, 10, 14], 'min'], A7b13: [45, [4, 10, 13, 20], 'alt'],
+      Dm9: [38, [3, 7, 10, 14], 'min'], G13: [43, [4, 10, 14, 21], 'dom'], Gm9: [43, [3, 7, 10, 14], 'min'],
+      C13: [36, [4, 10, 14, 21], 'dom'], Bbmaj7: [46, [4, 7, 11, 14], 'maj'], Bbm7: [46, [3, 7, 10, 14], 'min'],
+      Eb9: [39, [4, 7, 10, 14], 'dom'], Am7: [45, [3, 7, 10, 14], 'min'], D7b9: [38, [4, 7, 10, 13], 'alt']
+    };
+    const SCALE = { maj: [0, 2, 4, 7, 9], min: [0, 2, 3, 5, 7, 10], dom: [0, 2, 4, 7, 9, 10], alt: [0, 1, 4, 7, 10] };
+    const A = [['Fmaj9'], ['Em7', 'A7b13'], ['Dm9'], ['G13'], ['Gm9'], ['C13'], ['Fmaj9', 'Dm9'], ['Gm9', 'C13']];
+    const B = [['Bbmaj7'], ['Bbm7', 'Eb9'], ['Am7'], ['D7b9'], ['Gm9'], ['C13'], ['Fmaj9'], ['Gm9', 'C13']];
+    const FORM = [...A, ...A, ...B, ...A];
+    const mtof = n => 440 * Math.pow(2, (n - 69) / 12);
+    const rnd = a => a[Math.floor(Math.random() * a.length)];
+    const hum = () => (Math.random() - 0.5) * 0.012;
+    const pos = i8 => Math.floor(i8 / 2) * SPB + (i8 % 2 ? SWING * SPB : 0); // swung eighth inside a bar
+    const voicing = name => {
+      const [r, iv] = CH[name];
+      const ns = iv.map(i => r + 12 + i);
+      const k = Math.round((64 - ns.reduce((a, b) => a + b, 0) / ns.length) / 12);
+      return ns.map(n => n + 12 * k);
+    };
+
+    let ctx = null, out, bus, keys, lead, drums, verb, noise, timer = null, playing = false;
+    let nextBar = 0, bar = 0, lastLead = 72, phraseOn = false, phraseAt = 0;
+
+    const build = c => {
+      ctx = c;
+      out = c.createGain(); out.gain.value = 0;
+      const comp = c.createDynamicsCompressor();
+      comp.threshold.value = -20; comp.ratio.value = 3; comp.attack.value = 0.01; comp.release.value = 0.25;
+      const warm = c.createBiquadFilter(); warm.type = 'lowpass'; warm.frequency.value = 9000;
+      bus = c.createGain();
+      bus.connect(warm); warm.connect(comp); comp.connect(out); out.connect(c.destination);
+      // small room: decaying stereo noise impulse
+      verb = c.createConvolver();
+      const len = Math.floor(c.sampleRate * 1.8), ir = c.createBuffer(2, len, c.sampleRate);
+      for (let ch = 0; ch < 2; ch++) { const d = ir.getChannelData(ch); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3); }
+      verb.buffer = ir;
+      const wet = c.createGain(); wet.gain.value = 0.22; verb.connect(wet); wet.connect(bus);
+      // Rhodes bus with a gentle autopan
+      keys = c.createGain();
+      const pan = c.createStereoPanner ? c.createStereoPanner() : c.createGain();
+      if (pan.pan) {
+        const lfo = c.createOscillator(), depth = c.createGain();
+        lfo.frequency.value = 1.6; depth.gain.value = 0.3; lfo.connect(depth); depth.connect(pan.pan); lfo.start();
+      }
+      keys.connect(pan); pan.connect(bus); pan.connect(verb);
+      // vibraphone bus with motor tremolo
+      lead = c.createGain();
+      const trem = c.createOscillator(), tdepth = c.createGain();
+      trem.frequency.value = 5; tdepth.gain.value = 0.25; trem.connect(tdepth); tdepth.connect(lead.gain); trem.start();
+      lead.connect(bus); lead.connect(verb);
+      drums = c.createGain(); drums.connect(bus);
+      const dsend = c.createGain(); dsend.gain.value = 0.3; drums.connect(dsend); dsend.connect(verb);
+      noise = c.createBuffer(1, c.sampleRate, c.sampleRate);
+      const nd = noise.getChannelData(0); for (let i = 0; i < nd.length; i++) nd[i] = Math.random() * 2 - 1;
+    };
+
+    const ep = (n, t, dur, v) => { // electric piano: two-operator FM, bright attack that mellows
+      const f = mtof(n), car = ctx.createOscillator(), mod = ctx.createOscillator(), mg = ctx.createGain(), g = ctx.createGain();
+      car.frequency.value = f; mod.frequency.value = f;
+      mg.gain.setValueAtTime(f * 1.8 * v, t); mg.gain.exponentialRampToValueAtTime(f * 0.12, t + 0.9);
+      mod.connect(mg); mg.connect(car.frequency);
+      g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(0.16 * v, t + 0.006);
+      g.gain.setTargetAtTime(0.07 * v, t + 0.01, 0.6); g.gain.setTargetAtTime(0.0001, t + dur, 0.12);
+      car.connect(g); g.connect(keys);
+      car.start(t); mod.start(t); car.stop(t + dur + 0.8); mod.stop(t + dur + 0.8);
+    };
+    const bass = (n, t, dur, v) => { // upright-ish: triangle + sine through a plucked low-pass
+      const f = mtof(n), o = ctx.createOscillator(), s = ctx.createOscillator(), lp = ctx.createBiquadFilter(), g = ctx.createGain();
+      o.type = 'sawtooth'; o.frequency.value = f; s.frequency.value = f;
+      lp.type = 'lowpass'; lp.Q.value = 1; lp.frequency.setValueAtTime(1500, t); lp.frequency.exponentialRampToValueAtTime(520, t + 0.25);
+      g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(0.15 * v, t + 0.012);
+      g.gain.setTargetAtTime(0.06 * v, t + 0.02, 0.25); g.gain.setTargetAtTime(0.0001, t + dur * 0.92, 0.05);
+      o.connect(lp); s.connect(lp); lp.connect(g); g.connect(bus);
+      o.start(t); s.start(t); o.stop(t + dur + 0.4); s.stop(t + dur + 0.4);
+    };
+    const vib = (n, t, dur, v) => { // vibraphone: sine with a quiet fourth partial
+      const f = mtof(n), o = ctx.createOscillator(), o2 = ctx.createOscillator(), g = ctx.createGain(), g2 = ctx.createGain();
+      o.frequency.value = f; o2.frequency.value = f * 4; g2.gain.value = 0.18;
+      g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(0.15 * v, t + 0.004);
+      g.gain.setTargetAtTime(0.0001, t + 0.01, Math.max(0.25, dur * 0.6));
+      o.connect(g); o2.connect(g2); g2.connect(g); g.connect(lead);
+      o.start(t); o2.start(t); o.stop(t + dur + 1.5); o2.stop(t + dur + 1.5);
+    };
+    const hit = (t, type, v) => {
+      if (type === 'kick') {
+        const o = ctx.createOscillator(), g = ctx.createGain();
+        o.frequency.setValueAtTime(115, t); o.frequency.exponentialRampToValueAtTime(42, t + 0.12);
+        g.gain.setValueAtTime(0.4 * v, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.28);
+        o.connect(g); g.connect(drums); o.start(t); o.stop(t + 0.35);
+        return;
+      }
+      const src = ctx.createBufferSource(), f = ctx.createBiquadFilter(), g = ctx.createGain();
+      src.buffer = noise;
+      let dur;
+      if (type === 'snare') {
+        f.type = 'bandpass'; f.frequency.value = 1900; f.Q.value = 0.7; dur = 0.2; g.gain.setValueAtTime(0.22 * v, t);
+        const o = ctx.createOscillator(), og = ctx.createGain();
+        o.type = 'triangle'; o.frequency.value = 185;
+        og.gain.setValueAtTime(0.12 * v, t); og.gain.exponentialRampToValueAtTime(0.0001, t + 0.08);
+        o.connect(og); og.connect(drums); o.start(t); o.stop(t + 0.1);
+      } else if (type === 'ride') {
+        f.type = 'bandpass'; f.frequency.value = 6000; f.Q.value = 1.2; dur = 0.14; g.gain.setValueAtTime(0.07 * v, t);
+      } else {
+        f.type = 'highpass'; f.frequency.value = 7200; dur = type === 'open' ? 0.22 : 0.05; g.gain.setValueAtTime(0.12 * v, t);
+      }
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      src.connect(f); f.connect(g); g.connect(drums);
+      src.start(t, Math.random() * 0.5, dur + 0.02);
+    };
+
+    const walk = (root, kind, beats, nextRoot) => { // root, chord tones, then a half-step approach into the next chord
+      const third = root + (kind === 'min' ? 3 : 4), fifth = root + 7, sev = root + (kind === 'maj' ? 11 : 10);
+      let target = nextRoot;
+      while (target - root > 6) target -= 12;
+      while (root - target > 6) target += 12;
+      const appr = target + (Math.random() < 0.5 ? -1 : 1);
+      if (beats === 2) return [root, appr];
+      return [root, ...(Math.random() < 0.5 ? [third, fifth] : [fifth, sev - 12 >= 28 ? sev - 12 : third]), appr];
+    };
+
+    const scheduleBar = (b, t0) => {
+      const fi = b % FORM.length, cyc = Math.floor(b / FORM.length), sec = Math.floor(fi / 8), inSec = fi % 8;
+      const chords = FORM[fi], per = 4 / chords.length;
+      const hatsOn = b >= 2, beatOn = b >= 4;
+      if (inSec % 4 === 0) { phraseOn = b >= 8 && Math.random() < (sec === 2 ? 0.95 : 0.7); phraseAt = Math.random() < 0.5 ? 0 : 2; }
+      const leadBar = phraseOn && (inSec % 4 === phraseAt || inSec % 4 === phraseAt + 1);
+      const phraseEnd = leadBar && inSec % 4 === phraseAt + 1;
+
+      chords.forEach((name, ci) => {
+        const ct = t0 + ci * per * SPB, [root, , kind] = CH[name], notes = voicing(name);
+        // Rhodes comping on swung eighths
+        const pat = rnd(per === 4 ? [[0, 3], [0, 3, 6], [1, 4], [0, 5], [0, 2, 5], [3, 6]] : [[0, 3], [0], [1, 3]]);
+        pat.forEach((i8, k) => {
+          const end = k + 1 < pat.length ? pat[k + 1] : per * 2;
+          const dur = Math.max(0.25, pos(end) - pos(i8)) * 0.95, v = 0.75 + Math.random() * 0.25, st = ct + pos(i8) + hum();
+          notes.forEach((n, j) => ep(n, st + j * 0.008, dur, v));
+        });
+        // walking bass
+        const nextName = ci + 1 < chords.length ? chords[ci + 1] : FORM[(fi + 1) % FORM.length][0];
+        walk(root, kind, per, CH[nextName][0]).forEach((n, k) => bass(n, ct + k * SPB + hum(), SPB * 0.95, k === 0 ? 1 : 0.85));
+        // vibes phrase: stepwise through the chord scale, landing on a chord tone
+        if (leadBar) {
+          const pitches = [];
+          for (let n = 62; n <= 86; n++) if (SCALE[kind].includes(((n - root) % 12 + 12) % 12)) pitches.push(n);
+          let idx = pitches.reduce((best, n, i) => Math.abs(n - lastLead) < Math.abs(pitches[best] - lastLead) ? i : best, 0);
+          const slots = per * 2;
+          for (let s = 0; s < slots; s++) {
+            const last = phraseEnd && ci === chords.length - 1 && s >= slots - 3;
+            if (last) {
+              const tones = pitches.filter(n => [3, 4, 14 % 12].includes(((n - root) % 12 + 12) % 12));
+              const land = tones.reduce((a, n) => Math.abs(n - lastLead) < Math.abs(a - lastLead) ? n : a, tones[0] || pitches[idx]);
+              vib(land, ct + pos(s) + hum(), SPB * 1.5, 0.9); lastLead = land;
+              break;
+            }
+            if (Math.random() > (s % 2 ? 0.55 : 0.45)) continue;
+            idx = Math.max(0, Math.min(pitches.length - 1, idx + rnd([-2, -1, -1, 1, 1, 2, 3, -3])));
+            const long = Math.random() < 0.25;
+            vib(pitches[idx], ct + pos(s) + hum(), SPB * (long ? 1 : 0.5), 0.7 + Math.random() * 0.3);
+            lastLead = pitches[idx];
+            if (long) s++;
+          }
+        }
+      });
+
+      if (hatsOn) {
+        const cym = cyc % 2 ? 'ride' : 'hat';
+        for (let i8 = 0; i8 < 8; i8++) hit(t0 + pos(i8) + hum(), cym, i8 % 2 ? 1 : 0.6);
+      }
+      if (beatOn) {
+        (Math.random() < 0.6 ? [0, 5] : [0, 3, 5]).forEach(i8 => hit(t0 + pos(i8), 'kick', i8 === 0 ? 1 : 0.8));
+        [2, 6].forEach(i8 => hit(t0 + pos(i8) + hum(), 'snare', 0.9));
+        if (Math.random() < 0.35) hit(t0 + pos(7) + hum(), 'snare', 0.25);
+        if (inSec === 7) { [5, 6, 7].forEach(i8 => hit(t0 + pos(i8) + hum(), 'snare', 0.4 + i8 * 0.05)); hit(t0 + pos(7), 'open', 0.8); }
+      }
+    };
+
+    const tick = () => { while (nextBar < ctx.currentTime + 0.4) { scheduleBar(bar, nextBar); nextBar += BAR; bar++; } };
+    const fade = (to, secs) => {
+      const now = ctx.currentTime;
+      out.gain.cancelScheduledValues(now); out.gain.setValueAtTime(out.gain.value, now); out.gain.linearRampToValueAtTime(to, now + secs);
+    };
+    document.addEventListener('visibilitychange', () => {
+      if (!ctx || !ctx.suspend) return;
+      if (document.hidden) ctx.suspend(); else if (playing) ctx.resume();
+    });
+    return {
+      start(c) {
+        if (playing || !c) return;
+        if (!ctx) build(c);
+        playing = true;
+        if (nextBar < ctx.currentTime + 0.05) nextBar = ctx.currentTime + 0.12;
+        fade(LEVEL, 2.5);
+        tick(); timer = setInterval(tick, 50);
+      },
+      stop() {
+        if (!playing) return;
+        playing = false; clearInterval(timer); fade(0, 1.2);
+      },
+      render(c, bars) { // offline preview for testing; schedules `bars` bars from t = 0.1
+        build(c); out.gain.value = LEVEL; nextBar = 0.1;
+        for (let i = 0; i < bars; i++) { scheduleBar(i, nextBar); nextBar += BAR; }
+      }
     };
   })();
   const soundBtn = $('#sound-btn');
   const paintSound = () => {
     soundBtn.setAttribute('aria-pressed', String(Sound.on));
-    soundBtn.setAttribute('aria-label', Sound.on ? 'Garsas įjungtas' : 'Garsas išjungtas');
+    soundBtn.setAttribute('aria-label', Sound.on ? 'Išjungti muziką' : 'Įjungti muziką');
   };
   paintSound();
   soundBtn.addEventListener('click', () => { Sound.set(!Sound.on); paintSound(); Sound.play('tick'); });
+  // browsers only allow audio after a gesture: a returning visitor who left music on hears it from their first tap
+  if (Sound.on) {
+    const resume = e => { if (e.target.closest && e.target.closest('#sound-btn')) return; if (Sound.on) Music.start(Sound.audio()); };
+    window.addEventListener('pointerdown', resume, { once: true });
+    window.addEventListener('keydown', resume, { once: true });
+  }
 
   /* ---------- Menu ---------- */
   const menuBtn = $('#menu-btn'), menu = $('#menu'), main = $('main'), foot = $('.foot');
