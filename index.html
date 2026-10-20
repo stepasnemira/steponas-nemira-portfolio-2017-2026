@@ -1,0 +1,871 @@
+<!doctype html>
+<html lang="lt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Steponas Nemira portfolio 2017–2026</title>
+<meta property="og:title" content="Steponas Nemira portfolio 2017–2026">
+<meta property="og:description" content="Diplomuotas interjero dizaineris. Interjero projektai, techniniai brėžiniai ir 3D vizualizacijos.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://stepasnemira.github.io/steponas-nemira-portfolio-2017-2026/">
+<meta property="og:image" content="https://stepasnemira.github.io/steponas-nemira-portfolio-2017-2026/img/og.jpg">
+<meta property="og:image:width" content="1029">
+<meta property="og:image:height" content="540">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Steponas Nemira, diplomuotas interjero dizaineris. Interjero projektai, techniniai brėžiniai ir 3D vizualizacijos.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500&family=League+Gothic&display=swap">
+<style>
+/* Layout (reference: grafik.co.nz): full-bleed 12-column grid, 12px gutter and padding. Media and the portrait on the left (cols 1-8), text in a sticky column on the right (cols 9-12). Two type styles only: 15px grotesk and condensed display. Orange only for milestones, the timeline progress line, the photo hover frame and the footer strip */
+:root {
+  --canvas: #DAD9D5;
+  --ink: #000000;
+  --paper: #FFFFFF;
+  --muted: #8A8780;        /* dimming on black, decorative ticks */
+  --muted-text: #5B5853;   /* secondary text on the canvas, 4.8:1 */
+  --signal: #FD4E00;
+  --shim: #CDCBC6;
+  --track: #BDBBB6;
+  --bar-ink: #FFFFFF;
+
+  --font-text: "Inter Tight", "Helvetica Neue", Arial, sans-serif;
+  --font-display: "League Gothic", "Anton", "Arial Narrow", Impact, sans-serif;
+  --t: 15px;
+  --d-hero: clamp(40px, 5.6vw, 96px);
+  --d-year: clamp(96px, 10vw, 200px);
+  --d-mile: clamp(48px, 7vw, 120px);
+
+  --pad: 12px;
+  --gap: 12px;
+  --pl: max(var(--pad), env(safe-area-inset-left, 0px));
+  --pr: max(var(--pad), env(safe-area-inset-right, 0px));
+  --bar-h: 43px;
+  --top: calc(env(safe-area-inset-top, 0px) + var(--bar-h) + var(--pad));
+  --sp: 11vw;
+
+  --ease-io: cubic-bezier(0.45, 0, 0.55, 1);
+  --ease-out: cubic-bezier(0.33, 1, 0.68, 1);
+  --ease-stamp: cubic-bezier(0.34, 1.56, 0.64, 1);
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { scroll-behavior: smooth; scroll-padding-top: calc(var(--bar-h) + var(--pad)); }
+html.locked { overflow: hidden; }
+body {
+  margin: 0;
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: var(--font-text);
+  font-size: var(--t);
+  font-weight: 400;
+  line-height: 1.25;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 60; background: var(--ink); }
+h1, h2, h3, h4, p, ul, figure { margin: 0; }
+h1, h2, h3, h4 { font-size: inherit; font-weight: 400; }
+ul { padding: 0; list-style: none; }
+img { max-width: 100%; }
+a { color: inherit; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.15em; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--signal); outline-offset: 2px; }
+.up { text-transform: uppercase; }
+.muted { color: var(--muted-text); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.g12 { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gap); padding-left: var(--pl); padding-right: var(--pr); }
+
+/* Top bar */
+.bar {
+  position: sticky;
+  top: env(safe-area-inset-top, 0px);
+  z-index: 60;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  height: var(--bar-h);
+  padding-left: var(--pl);
+  padding-right: var(--pr);
+  background: var(--ink);
+  color: var(--bar-ink);
+  font-weight: 500;
+  text-transform: uppercase;
+}
+.bar-name { padding-block: 12px; text-decoration: none; white-space: nowrap; justify-self: start; }
+.bar-menu { background: none; border: 0; padding: 10px 12px; text-transform: uppercase; font-weight: 500; cursor: pointer; }
+.bar-sound { justify-self: end; display: grid; place-items: center; width: 40px; height: 40px; margin-right: -10px; background: none; border: 0; padding: 0; cursor: pointer; }
+.bar-sound svg { fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.bar-sound .spk { fill: currentColor; stroke: none; }
+.bar-sound .wave { display: none; }
+.bar-sound[aria-pressed="true"] .wave { display: inline; }
+.bar-sound[aria-pressed="true"] .cross { display: none; }
+
+/* Menu panel */
+.menu {
+  position: fixed;
+  top: calc(env(safe-area-inset-top, 0px) + var(--bar-h));
+  left: 0;
+  right: 0;
+  z-index: 55;
+  height: 80svh;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-template-rows: minmax(0, 1fr) auto;
+  column-gap: var(--gap);
+  padding: 24px max(24px, env(safe-area-inset-right, 0px)) 24px max(24px, env(safe-area-inset-left, 0px));
+  background: var(--ink);
+  color: var(--bar-ink);
+  transform: translateY(-100%);
+  visibility: hidden;
+  transition: transform 0.45s var(--ease-out), visibility 0s linear 0.45s;
+}
+.menu.open { transform: none; visibility: visible; transition: transform 0.45s var(--ease-out); }
+.m-projects, .m-pages, .m-bio { position: relative; z-index: 1; }
+.menu .m-projects { grid-column: 1 / span 3; grid-row: 1; }
+.menu .m-pages { grid-column: 7 / span 2; grid-row: 1; }
+.menu .m-bio { grid-column: 9 / span 4; grid-row: 1; }
+.m-projects a, .m-pages a { display: inline-block; padding-block: 2px; text-decoration: none; text-transform: uppercase; transition: color 0.3s; }
+.m-projects a:hover, .m-pages a:hover { text-decoration: underline; }
+.m-projects.dim a:not(.on) { color: var(--muted); }
+.m-bio { display: flex; flex-direction: column; gap: 15px; max-width: 30em; }
+.tap { display: flex; flex-direction: column; }
+.tap a { display: flex; align-items: center; gap: 8px; min-height: 44px; width: fit-content; }
+.tap svg { flex: none; width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.m-preview { grid-column: 3 / span 7; grid-row: 1; display: flex; align-items: center; justify-content: center; min-height: 0; pointer-events: none; opacity: 0; transition: opacity 0.35s; }
+.m-preview.on { opacity: 1; }
+.m-preview img { display: block; max-width: 100%; max-height: 56svh; width: auto; height: auto; }
+.m-time { grid-column: 1 / -1; grid-row: 2; font-variant-numeric: tabular-nums; }
+
+/* Intro */
+.intro { position: relative; height: calc(100svh - var(--bar-h)); min-height: 560px; padding-block: var(--pad); }
+.hello { margin-bottom: 4px; font-family: var(--font-display); font-size: var(--d-mile); line-height: 0.9; text-transform: uppercase; }
+.intro-text { grid-column: 7 / span 6; grid-row: 1; align-self: end; display: flex; flex-direction: column; gap: 15px; max-width: 34em; padding-left: var(--gap); }
+.stage { grid-column: 1 / span 6; grid-row: 1; position: relative; display: block; width: 100%; height: 100%; min-height: 0; padding: 0; border: 0; background: var(--shim); overflow: hidden; }
+.stage img { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: cover; }
+
+/* Timeline */
+.tl { padding-top: var(--sp); align-items: start; }
+.tl-panel { grid-column: 9 / span 4; grid-row: 1; align-self: start; position: sticky; top: var(--top); display: flex; flex-direction: column; gap: 15px; padding-left: var(--gap); }
+.tl-stats { color: var(--muted-text); }
+.tl-stats .n { color: var(--ink); font-variant-numeric: tabular-nums; }
+.tl-sticky { display: flex; flex-direction: column; gap: 18px; }
+.counter { display: flex; height: 1.2em; margin-block: -0.1em -0.12em; font-family: var(--font-display); font-size: var(--d-year); line-height: 1.2; white-space: nowrap; text-transform: uppercase; overflow: hidden; }
+.counter.now { color: var(--signal); }
+.od-cell { display: inline-grid; height: 1.2em; overflow: hidden; }
+.mini-y .od-cell { height: 1.25em; }
+.od-ch { grid-area: 1 / 1; display: block; }
+.chap-now { display: flex; flex-direction: column; gap: 4px; min-height: 5em; max-width: 30em; }
+.ticks { display: flex; align-items: flex-end; justify-content: space-between; height: 26px; }
+.tick { display: flex; align-items: flex-end; justify-content: center; width: 20px; height: 26px; padding: 0; background: none; border: 0; cursor: pointer; }
+.tick i { display: block; width: 1px; height: 9px; background: var(--ink); transition: height 0.2s var(--ease-out), background-color 0.2s; }
+.tick.on i { width: 2px; height: 22px; background: var(--signal); }
+.tick-labels { display: flex; justify-content: space-between; margin-top: 4px; color: var(--muted-text); }
+.filters { color: var(--muted-text); }
+.filters button { padding: 6px 0; background: none; border: 0; color: var(--ink); text-decoration: none; cursor: pointer; }
+.filters button[aria-pressed="true"] { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.15em; }
+
+.tl-mini { display: none; }
+.tl-entries { grid-column: 1 / span 8; grid-row: 1; position: relative; padding-left: 24px; }
+.tl-line { position: absolute; top: 0; bottom: 0; left: 0; width: 1px; background: var(--track); }
+.tl-fill { position: absolute; inset: 0; background: var(--signal); transform: scaleY(0); transform-origin: top; }
+.chap { position: relative; padding-top: 12px; border-top: 1px solid var(--ink); }
+.chap + .chap { margin-top: 72px; }
+.node { position: absolute; top: -5px; left: -28px; width: 9px; height: 9px; border: 1px solid var(--signal); background: var(--canvas); transition: background-color 0.2s; }
+.node.lit { background: var(--signal); }
+.chap-h { padding-bottom: 6px; }
+.sub-word { padding-top: 28px; }
+.entry { display: grid; grid-template-columns: 10em minmax(0, 1fr) 96px; column-gap: var(--gap); align-items: start; padding-block: 12px; transition: opacity 0.3s; }
+.entry.dim { opacity: 0.15; }
+.e-meta { color: var(--muted-text); font-variant-numeric: tabular-nums; }
+.e-main { display: flex; flex-direction: column; max-width: 36em; }
+.e-story { color: var(--muted-text); }
+.e-note { display: flex; align-items: flex-start; gap: 8px; margin-top: 8px; }
+.e-note svg { flex: none; width: 16px; height: 16px; margin-top: 2px; fill: none; stroke: var(--signal); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.thumb { display: block; width: 96px; }
+.thumb img { display: block; width: 100%; height: auto; }
+.mile { padding-top: 28px; }
+.mile-word { grid-column: 1 / -1; margin-bottom: 8px; font-family: var(--font-display); font-size: var(--d-mile); line-height: 0.9; text-transform: uppercase; color: var(--signal); transform-origin: left center; }
+.tools { display: grid; grid-template-columns: repeat(6, 56px); gap: 36px var(--gap); padding-block: 12px 24px; }
+.tool { position: relative; width: 56px; height: 56px; outline-offset: 4px; }
+.tool img { display: block; width: 56px; height: 56px; object-fit: contain; filter: grayscale(1) brightness(0.62); opacity: 0.7; transition: filter 0.3s, opacity 0.3s; }
+.tool:hover img, .tool:focus-visible img { filter: none; opacity: 1; }
+.tool .nm { position: absolute; top: calc(100% + 4px); left: 0; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+.tool:nth-child(6n) .nm, .tool:nth-child(6n-1) .nm { left: auto; right: 0; }
+.tool:hover .nm, .tool:focus-visible .nm { opacity: 1; }
+.langs { display: grid; grid-template-columns: repeat(3, minmax(0, 12em)); gap: var(--gap); padding-block: 12px 24px; }
+.langs li { display: flex; flex-direction: column; gap: 10px; padding-top: 8px; border-top: 1px solid var(--ink); }
+.dots { display: flex; gap: 6px; }
+.drive-h { padding-top: 24px; }
+.langs.two { grid-template-columns: repeat(2, minmax(0, 12em)); }
+.langs li.has { flex-direction: row; align-items: center; gap: 8px; }
+.yes { flex: none; width: 18px; height: 18px; fill: none; stroke: var(--signal); stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round; }
+.dots i { width: 12px; height: 12px; border: 1.5px solid var(--signal); border-radius: 50%; }
+.dots i.on { background: var(--signal); }
+
+/* Projects */
+.projects { padding-top: var(--sp); padding-bottom: var(--sp); }
+.project { align-items: start; }
+.project + .project { margin-top: var(--sp); }
+.p-text { grid-column: 9 / span 4; grid-row: 1; align-self: start; position: sticky; top: var(--top); display: flex; flex-direction: column; gap: 15px; max-width: 32em; padding-left: var(--gap); }
+.p-meta { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--gap); }
+.p-pal { display: flex; height: 6px; }
+.p-pal i { flex: 1; background: var(--c); }
+.p-more { align-self: flex-start; margin: -10px 0; padding: 10px 0; background: none; border: 0; cursor: pointer; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.15em; }
+.p-more:hover { text-decoration-color: var(--signal); text-decoration-thickness: 2px; }
+.p-media { grid-column: 1 / span 8; grid-row: 1; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--gap); align-items: start; }
+.p-media .span { grid-column: 1 / -1; }
+.p-media .col { display: flex; flex-direction: column; gap: var(--gap); min-width: 0; }
+.ph { position: relative; display: block; width: 100%; padding: 0; border: 0; border-radius: 0; overflow: hidden; background: var(--shim); cursor: zoom-in; outline: 3px solid transparent; outline-offset: 0; transition: outline-color 0.2s; }
+.ph:hover, .stage:hover, .thumb:hover { outline: 3px solid var(--signal); outline-offset: 0; }
+.ph img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.js .ph img { opacity: 0; transition: opacity 0.35s; }
+.js .ph.loaded img { opacity: 1; }
+.js .ph::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent); transform: translateX(-100%); animation: shimmer 1.2s linear infinite; }
+.js .ph.loaded::after { display: none; }
+@keyframes shimmer { to { transform: translateX(100%); } }
+.ph.sheet { background: var(--paper); }
+.ph.sheet img { object-fit: contain; padding: 6%; }
+
+/* Footer */
+.foot { background: var(--ink); color: var(--bar-ink); }
+.f-grid { padding-block: 24px 48px; }
+.f-grid .m-projects { grid-column: 1 / span 3; }
+.f-grid .m-pages { grid-column: 7 / span 2; }
+.f-grid .m-bio { grid-column: 9 / span 4; }
+.strip { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 24px; min-height: 48px; padding-left: var(--pl); padding-right: var(--pr); background: var(--signal); color: var(--ink); }
+.copy { color: var(--muted); }
+.strip-top { display: flex; align-items: center; min-height: 44px; text-decoration: none; }
+.strip-top:hover { text-decoration: underline; }
+.marquee { overflow: hidden; white-space: nowrap; }
+.mq-track { display: inline-flex; animation: mq 30s linear infinite; }
+.mq-track span { padding-right: 0.5em; }
+@keyframes mq { to { transform: translateX(-50%); } }
+
+/* Cursor preview */
+.peek { position: fixed; top: 0; left: 0; z-index: 70; width: 320px; pointer-events: none; opacity: 0; transition: opacity 0.2s; }
+.peek.on { opacity: 1; }
+.peek img { display: block; width: 100%; height: auto; }
+
+/* Lightbox */
+.lb { width: 100%; max-width: 100%; height: 100%; max-height: 100%; margin: 0; padding: 0; border: 0; background: var(--ink); color: var(--bar-ink); }
+.lb::backdrop { background: var(--ink); }
+.lb[open] { display: grid; grid-template-rows: minmax(0, 1fr) auto; }
+.lb-stage { min-height: 0; display: grid; place-items: center; padding: max(12px, env(safe-area-inset-top, 0px)) var(--pr) 12px var(--pl); touch-action: pan-y; }
+.lb-stage img { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; }
+.lb-bar { display: flex; justify-content: flex-end; align-items: center; padding: 6px var(--pr) max(12px, env(safe-area-inset-bottom, 0px)) var(--pl); }
+.lb-ctrl { display: flex; align-items: center; gap: 12px; font-variant-numeric: tabular-nums; }
+.lb-ctrl button { min-width: 44px; min-height: 44px; padding: 0 6px; background: none; border: 0; color: var(--bar-ink); cursor: pointer; }
+
+/* Tablet */
+@media (max-width: 999px) {
+  .p-text, .tl-panel { grid-column: 8 / span 5; }
+  .p-media, .tl-entries { grid-column: 1 / span 7; }
+  .entry { grid-template-columns: 7.5em minmax(0, 1fr) 96px; }
+  .menu .m-projects { grid-column: 1 / span 4; }
+  .menu .m-pages { grid-column: 6 / span 2; }
+  .menu .m-bio { grid-column: 9 / span 4; }
+}
+
+/* Phone */
+@media (max-width: 639px) {
+  .g12, .menu { grid-template-columns: minmax(0, 1fr); }
+  .g12 > *, .menu > * { grid-column: 1 / -1 !important; grid-row: auto !important; }
+  .menu { height: calc(100svh - var(--bar-h)); grid-template-rows: none; align-content: start; row-gap: 32px; overflow: auto; }
+  .menu > * { grid-row: auto !important; }
+  .m-preview { display: none; }
+  .intro { height: auto; min-height: 0; row-gap: 24px; padding-block: var(--pad) 48px; }
+  .stage { order: -1; aspect-ratio: 4 / 5; height: auto; }
+  .tools { grid-template-columns: repeat(4, 56px); }
+  .tool:nth-child(n) .nm { left: 0; right: auto; }
+  .tool:nth-child(4n) .nm, .tool:nth-child(4n-1) .nm { left: auto; right: 0; }
+  .intro-text { max-width: none; padding-left: 0; }
+  .tl { padding-top: 48px; }
+  .tl-panel { position: static; padding-left: 0; }
+  .tl-sticky { display: none; }
+  .tl-mini {
+    position: sticky;
+    top: calc(env(safe-area-inset-top, 0px) + var(--bar-h));
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    height: 40px;
+    margin-top: 24px;
+    background: var(--canvas);
+  }
+  .tl-mini select { font: inherit; color: var(--ink); background: transparent; border: 0; border-bottom: 1px solid var(--ink); border-radius: 0; padding: 4px 0; }
+  .mini-y { display: inline-flex; font-variant-numeric: tabular-nums; }
+  .tl-entries { padding-left: 16px; margin-top: 12px; }
+  .node { left: -20px; }
+  .entry { grid-template-columns: minmax(0, 1fr) 72px; row-gap: 2px; }
+  .entry .e-meta { grid-column: 1; grid-row: 1; }
+  .entry .e-main { grid-column: 1; grid-row: 2; }
+  .entry > .thumb, .entry > span:last-child { grid-column: 2; grid-row: 1 / span 2; }
+  .mile .e-meta { grid-row: 2; }
+  .mile .e-main { grid-row: 3; }
+  .mile > .thumb, .mile > span:last-child { grid-row: 2 / span 2; }
+  .thumb { width: 72px; }
+  .mile-word { font-size: clamp(40px, 12vw, 64px); }
+  .projects { padding-top: 48px; }
+  .project { row-gap: 15px; }
+  .project + .project { margin-top: 72px; }
+  .p-text { position: static; max-width: none; padding-left: 0; }
+  .p-media { grid-template-columns: minmax(0, 1fr); }
+  .f-grid { row-gap: 32px; }
+  .strip { gap: 12px; }
+  .lb-bar { justify-content: center; }
+  .bar { grid-template-columns: auto auto minmax(0, 1fr); column-gap: 12px; }
+  .m-projects a, .m-pages a { padding-block: 6px; }
+  .peek { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .mq-track { animation: none; }
+  .js .ph::after { animation: none; }
+  .menu, .menu.open { transition: none; }
+}
+
+</style>
+</head>
+<body>
+<script>document.documentElement.classList.add('js');</script>
+
+<header class="bar">
+  <a class="bar-name" href="#apie">Steponas Nemira</a>
+  <button class="bar-menu" type="button" id="menu-btn" aria-expanded="false" aria-controls="menu">Menu</button>
+  <button class="bar-sound" type="button" id="sound-btn" aria-pressed="false" aria-label="Garsas išjungtas">
+    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path class="spk" d="M3 9h4l5-4v14l-5-4H3z"/><path class="wave" d="M15.5 8.5a5 5 0 0 1 0 7M18 6a8.5 8.5 0 0 1 0 12"/><path class="cross" d="M16 9l6 6M22 9l-6 6"/></svg>
+  </button>
+</header>
+
+<nav class="menu" id="menu" aria-label="Meniu" aria-hidden="true">
+  <ul class="m-projects"><li><a href="#p-uzupis" data-peek="img/uzupis-virtuve.webp">Interjeras Užupyje</a></li><li><a href="#p-butas" data-peek="img/butas-svetaine-2.webp">Įgyvendintas butas Kaune</a></li><li><a href="#p-kaunas" data-peek="img/kaunas-valgomasis.webp">Interjeras Kaune</a></li><li><a href="#p-dielektrik" data-peek="img/dielektrik-registratura.webp">Dielektrik</a></li><li><a href="#p-expoera" data-peek="img/expoera-stendas.webp">Expoera</a></li><li><a href="#p-rambynas" data-peek="img/rambynas-mansarda-1.webp">Rambyno muziejus</a></li><li><a href="#p-comfyhub" data-peek="img/comfyhub-poilsio-zona.webp">Comfyhub</a></li><li><a href="#p-structum" data-peek="img/shori-miegamasis.webp">Structum</a></li><li><a href="#p-salonas" data-peek="img/salonas-recepcija.webp">Grožio salonas</a></li><li><a href="#p-pirmosios" data-peek="img/pirmosios-svetaine.webp">Pirmosios vizualizacijos</a></li></ul>
+  <ul class="m-pages"><li><a href="#apie">Apie mane</a></li><li><a href="#kelias">Patirtis</a></li><li><a href="#darbai">Darbai</a></li><li><a href="#kontaktai">Kontaktai</a></li></ul>
+  <div class="m-bio"><p>Esu Steponas Nemira, diplomuotas interjero dizaineris. Esu žingeidus, linksmas ir nuoširdus žmogus, kuriuo galima pasitikėti. Pagrindinė vertybė – abipusė pagarba.</p><p class="tap"><a href="tel:+37069413878"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h3.2l1.8 4.6-2.3 1.5a12 12 0 0 0 6.7 6.7l1.5-2.3 4.6 1.8V19a1.5 1.5 0 0 1-1.6 1.5A16.5 16.5 0 0 1 3.5 5.1 1.5 1.5 0 0 1 5 3.5z"/></svg><span>+370 694 13878</span></a><a href="mailto:stepas.nemira@gmail.com"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5.5" width="18" height="13" rx="1"/><path d="m3.5 6.5 8.5 6.5 8.5-6.5"/></svg><span>stepas.nemira@gmail.com</span></a></p></div>
+  <div class="m-preview" aria-hidden="true"><img alt=""></div>
+  <p class="m-time"><span>Lietuva, </span><span class="clock">--:--</span></p>
+</nav>
+
+<main>
+  <section class="intro g12" id="apie" aria-labelledby="hero-h">
+    <h1 class="sr" id="hero-h">Steponas Nemira, interjero dizaineris</h1>
+    <div class="intro-text">
+      <p class="hello">Susipažinkime</p>
+      <p>Esu diplomuotas interjero dizaineris Steponas Nemira. Turiu realios patirties įgyvendinant interjero dizaino projektus, bendraujant su užsakovais, išsiaiškinant jų lūkesčius bei poreikius. Prisidėjau ir prie visuomeninių pastatų renovacijų – mokyklų, poliklinikų, kalėjimo, hidroelektrinės ir motobolo stadiono. Atlieku techninius brėžinius, kuriu 3D vizualizacijas.</p>
+      <p>O jei apie mane kaip apie asmenybę: esu žingeidus, linksmas ir nuoširdus žmogus, kuriuo galima pasitikėti. Pagrindinė žmogiška vertybė, kuria vadovaujuosi gyvenime: abipusė pagarba.</p>
+      <p>Laisvalaikiu gilinuosi į dirbtinį intelektą ir tyrinėju, kaip jį pritaikyti dizaino procese.</p>
+      <p class="tap"><a href="tel:+37069413878"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h3.2l1.8 4.6-2.3 1.5a12 12 0 0 0 6.7 6.7l1.5-2.3 4.6 1.8V19a1.5 1.5 0 0 1-1.6 1.5A16.5 16.5 0 0 1 3.5 5.1 1.5 1.5 0 0 1 5 3.5z"/></svg><span>+370 694 13878</span></a><a href="mailto:stepas.nemira@gmail.com"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5.5" width="18" height="13" rx="1"/><path d="m3.5 6.5 8.5 6.5 8.5-6.5"/></svg><span>stepas.nemira@gmail.com</span></a></p>
+    </div>
+    <div class="stage">
+      <img src="img/portretas.webp" width="1029" height="1029" alt="Steponas Nemira prie ežero rudenį" fetchpriority="high">
+    </div>
+  </section>
+
+  <section class="tl g12" id="kelias" aria-labelledby="kelias-h">
+    <div class="tl-panel">
+      <h2 class="up" id="kelias-h">Kelias</h2>
+      <p class="tl-stats"><span class="n" data-to="4">4</span> studijų etapai · <span class="n" data-to="6">6</span> konkursai · <span class="n" data-to="9">9</span> asmeniniai įgyvendinti projektai</p>
+      <div class="tl-sticky">
+        <p class="counter" id="counter" aria-live="off"></p>
+        <div class="chap-now"><p class="up" id="chap-t"></p><p class="muted" id="chap-s"></p></div>
+        <div class="ticks-wrap"><div class="ticks"><button class="tick" type="button" data-y="2017" aria-label="2017"><i></i></button><button class="tick" type="button" data-y="2018" aria-label="2018"><i></i></button><button class="tick" type="button" data-y="2019" aria-label="2019"><i></i></button><button class="tick" type="button" data-y="2020" aria-label="2020"><i></i></button><button class="tick" type="button" data-y="2021" aria-label="2021"><i></i></button><button class="tick" type="button" data-y="2022" aria-label="2022"><i></i></button><button class="tick" type="button" data-y="2023" aria-label="2023"><i></i></button><button class="tick" type="button" data-y="2024" aria-label="2024"><i></i></button><button class="tick" type="button" data-y="2025" aria-label="2025"><i></i></button><button class="tick" type="button" data-y="2026" aria-label="Dabar"><i></i></button></div><p class="tick-labels"><span>2017</span><span>Dabar</span></p></div>
+        <p class="filters" role="group" aria-label="Filtras"><button type="button" data-f="visi" aria-pressed="true">Visi</button> · <button type="button" data-f="studijos" aria-pressed="false">Studijos</button> · <button type="button" data-f="konkursai" aria-pressed="false">Konkursai</button> · <button type="button" data-f="projektai" aria-pressed="false">Projektai</button></p>
+      </div>
+    </div>
+    <div class="tl-mini"><p><span class="mini-y" id="mini-y"></span> · <span id="mini-c"></span></p>
+      <select id="mini-f" aria-label="Filtras"><option value="visi">Visi</option><option value="studijos">Studijos</option><option value="konkursai">Konkursai</option><option value="projektai">Projektai</option></select></div>
+    <div class="tl-entries" id="entries">
+      <span class="tl-line" aria-hidden="true"><span class="tl-fill" id="tl-fill"></span></span>
+      <section class="chap" data-c="0" aria-label="Pradžia"><span class="node" aria-hidden="true"></span><h3 class="chap-h up">Pradžia · 2017–2018</h3><div class="entry" data-type="studijos" data-yr="2017" data-c="0" data-r0="2017" data-r1="2018"><p class="e-meta">2017–2018 · Studijos</p><p class="e-main"><span class="e-title">TiTi interjero dizainerių studijos</span><span class="e-story">Dar būdamas mokyklos suole išmokau dirbti su ArchiCAD programine įranga pas architektą Dalių Regelskį. Mokiausi, kaip braižomi techniniai brėžiniai, ir sukūriau pirmąsias vizualizacijas.</span></p><a class="thumb" href="#p-pirmosios" data-peek="img/pirmosios-svetaine.webp" aria-label="Projektas: Pirmosios vizualizacijos"><img src="img/pirmosios-svetaine.webp" width="1014" height="537" alt="" loading="lazy" decoding="async"></a></div></section><section class="chap" data-c="1" aria-label="Pirmieji užsakymai"><span class="node" aria-hidden="true"></span><h3 class="chap-h up">Pirmieji užsakymai · 2019–2020</h3><div class="entry" data-type="projektai" data-yr="2019" data-c="1" data-r0="2019" data-r1="2019"><p class="e-meta">2019 · Projektas</p><p class="e-main"><span class="e-title">Buto vizualizacijos Klaipėdoje</span><span class="e-story">Buto interjero vizualizacijos.</span></p><span></span></div><div class="entry" data-type="projektai" data-yr="2019" data-c="1" data-r0="2019" data-r1="2019"><p class="e-meta">2019 · Projektas</p><p class="e-main"><span class="e-title">Dviejų kambarių atnaujinimas</span><span class="e-story">Dviejų kambarių interjero atnaujinimas. Įgyvendintas nuo idėjos iki realizavimo.</span></p><span></span></div><div class="entry" data-type="projektai" data-yr="2020" data-c="1" data-r0="2020" data-r1="2020"><p class="e-meta">2020 · Projektas</p><p class="e-main"><span class="e-title">Namo interjero projektas Bendoriuose</span><span class="e-story">Namo interjero projektas, planai, apdailos medžiagos, baldai.</span></p><span></span></div></section><section class="chap" data-c="2" aria-label="Architektūros pagrindai"><span class="node" aria-hidden="true"></span><h3 class="chap-h up">Architektūros pagrindai · 2020–2021</h3><div class="entry" data-type="studijos" data-yr="2020" data-c="2" data-r0="2020" data-r1="2021"><p class="e-meta">2020–2021 · Studijos</p><p class="e-main"><span class="e-title">VGTU Jaunojo architekto studijos</span><span class="e-story">Architektūrinis piešimas ir žinios apie architektūrą bei planavimą.</span></p><span></span></div></section><section class="chap" data-c="3" aria-label="Diplomas ir konkursai"><span class="node" aria-hidden="true"></span><h3 class="chap-h up">Diplomas ir konkursai · 2021–2024</h3><div class="entry mile" data-type="studijos" data-yr="2021" data-c="3" data-r0="2021" data-r1="2024"><p class="mile-word" aria-hidden="true">Diplomas</p><p class="e-meta">2021–2024 · Studijos</p><p class="e-main"><span class="e-title">VTDK, interjero dizainerio specialybė</span><span class="e-story">Diplomuoto interjero dizainerio kvalifikacija.</span></p><span></span></div><div class="entry" data-type="projektai" data-yr="2022" data-c="3" data-r0="2022" data-r1="2022"><p class="e-meta">2022 · Projektas</p><p class="e-main"><span class="e-title">Namo interjero projektas Salininkuose</span><span class="e-story">Trijų aukštų namą su mansarda perprojektavau į mažesnius butus, skirtus nuomai.</span></p><span></span></div><div class="entry mile" data-type="konkursai" data-yr="2022" data-c="3" data-r0="2022" data-r1="2022"><p class="mile-word" aria-hidden="true">Publikacija</p><p class="e-meta">2022 · Konkursas</p><p class="e-main"><span class="e-title">Structum „Viešbučio erdvė: rytojaus tendencijos šiandien“</span><span class="e-story">Konkursinis darbas publikuotas žurnale 2022 m. gruodį.</span></p><a class="thumb" href="#p-structum" data-peek="img/shori-miegamasis.webp" aria-label="Projektas: Structum"><img src="img/shori-miegamasis.webp" width="907" height="493" alt="" loading="lazy" decoding="async"></a></div><div class="entry mile" data-type="konkursai" data-yr="2022" data-c="3" data-r0="2022" data-r1="2022"><p class="mile-word" aria-hidden="true">II vieta</p><p class="e-meta">2022 · Konkursas</p><p class="e-main"><span class="e-title">Rambyno muziejaus atnaujinimo konkursas</span><span class="e-story">Koncepcinis projektas, skirtas muziejaus interjero atnaujinimui, pagal muziejaus poreikius ir asmenines idėjas.</span></p><a class="thumb" href="#p-rambynas" data-peek="img/rambynas-mansarda-1.webp" aria-label="Projektas: Rambyno muziejus"><img src="img/rambynas-mansarda-1.webp" width="952" height="523" alt="" loading="lazy" decoding="async"></a></div><div class="entry" data-type="projektai" data-yr="2022" data-c="3" data-r0="2022" data-r1="2022"><p class="e-meta">Iki 2022 · Projektas</p><p class="e-main"><span class="e-title">Ekspoziciniai stendai su „Expoera“</span><span class="e-story">Stendai Lietuvos įmonėms užsienio parodose.</span></p><a class="thumb" href="#p-expoera" data-peek="img/expoera-stendas.webp" aria-label="Projektas: Expoera"><img src="img/expoera-stendas.webp" width="1368" height="977" alt="" loading="lazy" decoding="async"></a></div><div class="entry" data-type="projektai" data-yr="2023" data-c="3" data-r0="2023" data-r1="2023"><p class="e-meta">2023 · Projektas</p><p class="e-main"><span class="e-title">Techninis projektas, Bubų g.</span><span class="e-story">Techninių brėžinių komplektas: planai, pjūviai, išklotinės.</span></p><span></span></div><div class="entry" data-type="projektai" data-yr="2023" data-c="3" data-r0="2023" data-r1="2023"><p class="e-meta">2023 · Projektas</p><p class="e-main"><span class="e-title">Techninis projektas, Karaliaučiaus g.</span><span class="e-story">Elektros ir santechnikos brėžiniai.</span></p><span></span></div><div class="entry" data-type="projektai" data-yr="2023" data-c="3" data-r0="2023" data-r1="2023"><p class="e-meta">2023 · Projektas</p><p class="e-main"><span class="e-title">Buto interjero projektas Kaune</span><span class="e-story">Įgyvendintas buto projektas, skirtas pardavimui. Nuo idėjos iki įgyvendinimo.</span></p><a class="thumb" href="#p-kaunas" data-peek="img/kaunas-svetaine.webp" aria-label="Projektas: Interjeras Kaune"><img src="img/kaunas-svetaine.webp" width="953" height="472" alt="" loading="lazy" decoding="async"></a></div><div class="entry" data-type="projektai" data-yr="2023" data-c="3" data-r0="2023" data-r1="2025"><p class="e-meta">2023–2025 · Projektas</p><p class="e-main"><span class="e-title">Dielektrik įmonės interjeras</span><span class="e-story">Bendradarbiaujant kartu su dizainere Lidia, senas veterinarijos pastatas po kapitalinio remonto tampa moderniu, šiuolaikišku Dielektrik įmonės biuru.</span></p><a class="thumb" href="#p-dielektrik" data-peek="img/dielektrik-registratura.webp" aria-label="Projektas: Dielektrik"><img src="img/dielektrik-registratura.webp" width="1004" height="596" alt="" loading="lazy" decoding="async"></a></div><p class="mile-word sub-word">Konkursai</p><div class="entry" data-type="konkursai" data-yr="2024" data-c="3" data-r0="2024" data-r1="2024"><p class="e-meta">2021–2024 · Konkursas</p><p class="e-main"><span class="e-title">Structum co-living biuras</span><span class="e-story">Gyvenimo ir darbo erdvės koncepcija, sukurta kartu su kolege. Laimėjome „Tikkurila“ nominaciją.</span></p><span></span></div><div class="entry" data-type="konkursai" data-yr="2024" data-c="3" data-r0="2024" data-r1="2024"><p class="e-meta">2021–2024 · Konkursas</p><p class="e-main"><span class="e-title">JAVAD exhibition booth</span><span class="e-story">Parodos stendo koncepcija.</span></p><span></span></div><div class="entry" data-type="konkursai" data-yr="2024" data-c="3" data-r0="2024" data-r1="2024"><p class="e-meta">2021–2024 · Konkursas</p><p class="e-main"><span class="e-title">Antalis „Dininghall 3D“</span><span class="e-story">Valgyklos erdvė trimatėje vizualizacijoje.</span></p><span></span></div><div class="entry" data-type="konkursai" data-yr="2024" data-c="3" data-r0="2024" data-r1="2024"><p class="e-meta">2021–2024 · Konkursas</p><p class="e-main"><span class="e-title">Structum „Išmanusis miestas 9“</span><span class="e-story">Architektūrinės idėjos Molėtų miesto sklypui.</span></p><span></span></div></section><section class="chap" data-c="4" aria-label="Studijoje"><span class="node" aria-hidden="true"></span><h3 class="chap-h up">Studijoje · 2024–2026</h3><p class="mile-word sub-word">Interjero ir architektūros studijoje</p><div class="entry" data-type="patirtis" data-yr="2024" data-c="4" data-r0="2024" data-r1="2025"><p class="e-meta">2024–2025 · Patirtis</p><p class="e-main"><span class="e-title">Sauliaus Remeikos dizaino studija</span><span class="e-story">Visuomeninių pastatų interjero renovacijos, tokios kaip mokyklos, poliklinikos, kalėjimas, hidroelektrinė ir motobolo stadionas. Buvau SA techninės dalies specialistas, braižiau techninius brėžinius ir bendravau su subrangovais bei konstruktoriais.</span><span class="e-note"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="1.5"/><path d="M8.5 10.5V7.5a3.5 3.5 0 0 1 7 0v3"/></svg><span>Projektai konfidencialūs, todėl vaizdų viešai nerodau. Apie juos mielai papasakosiu susitikimo metu.</span></span></p><span></span></div><div class="entry" data-type="patirtis" data-yr="2025" data-c="4" data-r0="2025" data-r1="2026"><p class="e-meta">2025–2026 · Patirtis</p><p class="e-main"><span class="e-title">Dizainerės asistentas ir partneris</span><span class="e-story">Metus dirbau dizainerės studijoje. Matavau objektus, ruošiau techninę, apdailos ir baldų dalis, modeliavau su SketchUp, bendravau su klientais, prižiūrėjau darbus objektuose ir ieškojau apdailos medžiagų salonuose.</span><span class="e-note"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="1.5"/><path d="M8.5 10.5V7.5a3.5 3.5 0 0 1 7 0v3"/></svg><span>Projektai konfidencialūs, todėl vaizdų viešai nerodau. Apie juos mielai papasakosiu susitikimo metu.</span></span></p><span></span></div></section><section class="chap" data-c="5" aria-label="Skaitmeniniai produktai"><span class="node" aria-hidden="true"></span><h3 class="chap-h up">Skaitmeniniai produktai · 2025–2026</h3><div class="entry" data-type="patirtis" data-yr="2025" data-c="5" data-r0="2025" data-r1="2026"><p class="e-meta">2025–2026 · Patirtis</p><p class="e-main"><span class="e-title">Skaitmeninių produktų kūrimas</span><span class="e-story">Užsienio rinkos dizaineriams ir nekilnojamojo turto agentams su Showit, Figma ir Canva kūriau internetines svetaines, „yard sign“ lenteles, banerius ir lankstinukus. Rašiau produktų aprašymus, rūpinausi SEO, ruošiau pardavimines nuotraukas, administravau el. parduotuvę, vykdžiau šaltus skambučius ir pardavimus.</span><span class="e-note"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="1.5"/><path d="M8.5 10.5V7.5a3.5 3.5 0 0 1 7 0v3"/></svg><span>Projektai konfidencialūs, todėl vaizdų viešai nerodau. Apie juos mielai papasakosiu susitikimo metu.</span></span></p><span></span></div></section><section class="chap" data-c="6" aria-label="Dabar"><span class="node" aria-hidden="true"></span><h3 class="chap-h up">Dabar</h3><div class="entry" data-type="projektai" data-yr="DABAR" data-c="6" data-r0="2026" data-r1="2026"><p class="e-meta">2024–2026 · Projektas</p><p class="e-main"><span class="e-title">Dielektrik biuras</span><span class="e-story">Šiuo metu įgyvendinamas, meistrai realizuoja pagal projektą. Projektą kūrėme kartu su dizainere Lidia, braižiau techninius brėžinius ir kūriau vizualizacijas.</span></p><a class="thumb" href="#p-dielektrik" data-peek="img/dielektrik-registratura.webp" aria-label="Projektas: Dielektrik"><img src="img/dielektrik-registratura.webp" width="1004" height="596" alt="" loading="lazy" decoding="async"></a></div><div class="entry" data-type="projektai" data-yr="DABAR" data-c="6" data-r0="2026" data-r1="2026"><p class="e-meta">2026 · Projektas</p><p class="e-main"><span class="e-title">Interjero projektas Užupyje</span><span class="e-story">Nuo idėjos ir techninių brėžinių iki įgyvendinimo. Šiuo metu įgyvendinamas, meistrai realizuoja pagal projektą.</span></p><a class="thumb" href="#p-uzupis" data-peek="img/uzupis-virtuve.webp" aria-label="Projektas: Interjeras Užupyje"><img src="img/uzupis-virtuve.webp" width="1200" height="1500" alt="" loading="lazy" decoding="async"></a></div></section><section class="chap tools-block" data-c="7" data-yr="ĮRANKIAI" aria-label="Įrankiai"><span class="node" aria-hidden="true"></span><h3 class="chap-h up">Įrankiai</h3><ul class="tools"><li class="tool" tabindex="0"><img src="icons/archicad.svg" width="56" height="56" alt="ArchiCAD" loading="lazy" decoding="async"><span class="nm" aria-hidden="true">ArchiCAD</span></li><li class="tool" tabindex="0"><img src="icons/autocad.svg" width="56" height="56" alt="AutoCAD" loading="lazy" decoding="async"><span class="nm" aria-hidden="true">AutoCAD</span></li><li class="tool" tabindex="0"><img src="icons/sketchup.svg" width="56" height="56" alt="SketchUp" loading="lazy" decoding="async"><span class="nm" aria-hidden="true">SketchUp</span></li><li class="tool" tabindex="0"><img src="icons/lumion.png" width="56" height="56" alt="Lumion" loading="lazy" decoding="async"><span class="nm" aria-hidden="true">Lumion</span></li><li class="tool" tabindex="0"><img src="icons/vray.svg" width="56" height="56" alt="Chaos V-Ray" loading="lazy" decoding="async"><span class="nm" aria-hidden="true">Chaos V-Ray</span></li><li class="tool" tabindex="0"><img src="icons/showit.svg" width="56" height="56" alt="Showit" loading="lazy" decoding="async"><span class="nm" aria-hidden="true">Showit</span></li><li class="tool" tabindex="0"><img src="icons/figma.svg" width="56" height="56" alt="Figma" loading="lazy" decoding="async"><span class="nm" aria-hidden="true">Figma</span></li><li class="tool" tabindex="0"><img src="icons/canva.svg" width="56" height="56" alt="Canva" loading="lazy" decoding="async"><span class="nm" aria-hidden="true">Canva</span></li><li class="tool" tabindex="0"><img src="icons/adobephotoshop.svg" width="56" height="56" alt="Adobe Photoshop" loading="lazy" decoding="async"><span class="nm" aria-hidden="true">Adobe Photoshop</span></li><li class="tool" tabindex="0"><img src="icons/adobeillustrator.svg" width="56" height="56" alt="Adobe Illustrator" loading="lazy" decoding="async"><span class="nm" aria-hidden="true">Adobe Illustrator</span></li><li class="tool" tabindex="0"><img src="icons/claude.svg" width="56" height="56" alt="Claude" loading="lazy" decoding="async"><span class="nm" aria-hidden="true">Claude</span></li><li class="tool" tabindex="0"><img src="icons/chatgpt.svg" width="56" height="56" alt="ChatGPT" loading="lazy" decoding="async"><span class="nm" aria-hidden="true">ChatGPT</span></li></ul></section><section class="chap" data-c="8" data-yr="KALBOS" aria-label="Kalbos"><span class="node" aria-hidden="true"></span><h3 class="chap-h up">Kalbos</h3><ul class="langs"><li><span>Lietuvių</span><span class="dots" role="img" aria-label="5 iš 5"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span></li><li><span>Anglų</span><span class="dots" role="img" aria-label="5 iš 5"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span></li><li><span>rusų</span><span class="dots" role="img" aria-label="3 iš 5"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span></li></ul><h4 class="chap-h up drive-h">Vairavimas</h4><ul class="langs two"><li class="has"><svg class="yes" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5"/></svg><span>Vairavimo teisės</span></li><li class="has"><svg class="yes" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5"/></svg><span>Nuosavas automobilis</span></li></ul></section>
+    </div>
+  </section>
+
+  <section class="projects" id="darbai" aria-label="Darbai">
+    <article class="project g12" id="p-uzupis" aria-labelledby="p-uzupis-t" data-axis="y">
+      <div class="p-text">
+        <h3 class="up" id="p-uzupis-t">Interjeras Užupyje</h3>
+        <p>Interjero projektas nuo idėjos ir techninių brėžinių iki įgyvendinimo. Pagrindinis užsakovės lūkestis buvo sukurti elegantišką, modernų minimalistinį interjerą be nė vieno juodos spalvos elemento. Šiuo metu interjeras įgyvendinamas, meistrai jį realizuoja pagal projektą. Ąžuolo spintos, šviesūs fasadai su lenktais įrėžiais ir prancūziškos eglutės parketas, o virš apvalaus stalo kabo žiedo formos šviestuvas.</p>
+        <p class="p-meta"><span>Idėja<br>Techniniai brėžiniai<br>Įgyvendinimas</span><span>2026<br>Realizuojamas</span></p>
+        <p class="p-pal" role="img" aria-label="Spalvinė gama: #D8C8BA, #B2A9A0, #A59481, #826F5A, #706044"><i style="--c: #D8C8BA"></i><i style="--c: #B2A9A0"></i><i style="--c: #A59481"></i><i style="--c: #826F5A"></i><i style="--c: #706044"></i></p><button class="p-more" type="button" data-g="0">Visi brėžiniai (2)</button>
+      </div>
+      <div class="p-media"><div class="col"><button class="ph first" type="button" style="aspect-ratio: 1200 / 1500" data-g="0" data-o="0" aria-label="Didinti: Virtuvė su ąžuolo spintomis ir apvaliu stalu prie akmens salos"><img src="img/uzupis-virtuve.webp" width="1200" height="1500" alt="Virtuvė su ąžuolo spintomis ir apvaliu stalu prie akmens salos" loading="lazy" decoding="async"></button><button class="ph" type="button" style="aspect-ratio: 1200 / 1500" data-g="0" data-o="2" aria-label="Didinti: Valgomasis su žiedo formos šviestuvu virš apvalaus stalo"><img src="img/uzupis-valgomasis.webp" width="1200" height="1500" alt="Valgomasis su žiedo formos šviestuvu virš apvalaus stalo" loading="lazy" decoding="async"></button><button class="ph" type="button" style="aspect-ratio: 1200 / 1500" data-g="0" data-o="4" aria-label="Didinti: Svetainė su sofa ir vaizdu į koridorių bei virtuvę"><img src="img/uzupis-svetaine.webp" width="1200" height="1500" alt="Svetainė su sofa ir vaizdu į koridorių bei virtuvę" loading="lazy" decoding="async"></button></div><div class="col"><button class="ph" type="button" style="aspect-ratio: 1200 / 1500" data-g="0" data-o="1" aria-label="Didinti: Modulinė sofa prie lango su žaliuzėmis"><img src="img/uzupis-sofa.webp" width="1200" height="1500" alt="Modulinė sofa prie lango su žaliuzėmis" loading="lazy" decoding="async"></button><button class="ph" type="button" style="aspect-ratio: 1200 / 1500" data-g="0" data-o="3" aria-label="Didinti: Darbo kambarys su ąžuolo stalu, lentynomis ir minkštu krėslu"><img src="img/uzupis-darbo-kambarys.webp" width="1200" height="1500" alt="Darbo kambarys su ąžuolo stalu, lentynomis ir minkštu krėslu" loading="lazy" decoding="async"></button><button class="ph" type="button" style="aspect-ratio: 1200 / 1500" data-g="0" data-o="5" aria-label="Didinti: Lenktas ąžuolo darbo stalas ir lentynos su LED apšvietimu"><img src="img/uzupis-darbo-stalas.webp" width="1200" height="1500" alt="Lenktas ąžuolo darbo stalas ir lentynos su LED apšvietimu" loading="lazy" decoding="async"></button></div><div class="span"><button class="ph sheet" type="button" style="aspect-ratio: 1330 / 961" data-g="0" data-o="6" aria-label="Didinti: Darbo kambario stalo ir lentynų brėžiniai"><img src="img/uzupis-stalo-breziniai.webp" width="1330" height="961" alt="Darbo kambario stalo ir lentynų brėžiniai" loading="lazy" decoding="async"></button></div><button class="ph sheet" type="button" hidden style="aspect-ratio: 1357 / 963" data-g="0" data-o="7" aria-label="Didinti: Virtuvės baldo brėžiniai"><img src="img/uzupis-virtuves-baldas.webp" width="1357" height="963" alt="Virtuvės baldo brėžiniai" loading="lazy" decoding="async"></button><button class="ph" type="button" hidden style="aspect-ratio: 1200 / 1500" data-g="0" data-o="8" aria-label="Didinti: Virtuvės fasadai su lenktais įrėžiais"><img src="img/uzupis-virtuve-detale.webp" width="1200" height="1500" alt="Virtuvės fasadai su lenktais įrėžiais" loading="lazy" decoding="async"></button></div>
+    </article>
+    <article class="project g12" id="p-butas" aria-labelledby="p-butas-t" data-axis="x">
+      <div class="p-text">
+        <h3 class="up" id="p-butas-t">Įgyvendintas butas Kaune</h3>
+        <p>Interjero projektas Kaune – nuo objekto apmatavimų iki įgyvendinimo. Butas buvo skirtas pardavimui, todėl kiekvieną sprendimą derinau su ribotu biudžetu ir savininkų lūkesčiais, o darbus planavau taip, kad interjeras būtų įgyvendintas kuo greičiau.</p>
+        <p class="p-meta"><span>Interjero projektas<br>Spalvinė gama</span><span>Įgyvendintas</span></p>
+        <p class="p-pal" role="img" aria-label="Spalvinė gama: #B1ADA9, #5A4D46, #1A1816, #6F7F61, #735942"><i style="--c: #B1ADA9"></i><i style="--c: #5A4D46"></i><i style="--c: #1A1816"></i><i style="--c: #6F7F61"></i><i style="--c: #735942"></i></p>
+      </div>
+      <div class="p-media"><div class="span"><button class="ph first" type="button" style="aspect-ratio: 1063 / 755" data-g="1" data-o="0" aria-label="Didinti: Įgyvendinto buto svetainė su žalia aksomine sofa"><img src="img/butas-svetaine-2.webp" width="1063" height="755" alt="Įgyvendinto buto svetainė su žalia aksomine sofa" loading="lazy" decoding="async"></button></div><div class="col"><button class="ph" type="button" style="aspect-ratio: 858 / 539" data-g="1" data-o="1" aria-label="Didinti: Kampinė virtuvė su apvaliu stalu"><img src="img/butas-virtuve.webp" width="858" height="539" alt="Kampinė virtuvė su apvaliu stalu" loading="lazy" decoding="async"></button><button class="ph" type="button" style="aspect-ratio: 772 / 571" data-g="1" data-o="3" aria-label="Didinti: Vonios kambarys su medžio imitacijos plytelėmis"><img src="img/butas-vonia.webp" width="772" height="571" alt="Vonios kambarys su medžio imitacijos plytelėmis" loading="lazy" decoding="async"></button></div><div class="col"><button class="ph" type="button" style="aspect-ratio: 1020 / 741" data-g="1" data-o="2" aria-label="Didinti: Miegamasis su žaliu minkštu galvūgaliu"><img src="img/butas-miegamasis-2.webp" width="1020" height="741" alt="Miegamasis su žaliu minkštu galvūgaliu" loading="lazy" decoding="async"></button><button class="ph" type="button" style="aspect-ratio: 885 / 506" data-g="1" data-o="4" aria-label="Didinti: Miegamasis su juoda spinta per visą sieną"><img src="img/butas-miegamasis-1.webp" width="885" height="506" alt="Miegamasis su juoda spinta per visą sieną" loading="lazy" decoding="async"></button></div></div>
+    </article>
+    <article class="project g12" id="p-kaunas" aria-labelledby="p-kaunas-t" data-axis="y">
+      <div class="p-text">
+        <h3 class="up" id="p-kaunas-t">Interjeras Kaune</h3>
+        <p>Idėjinės vizualizacijos, pagal kurias buvo įgyvendintas butas Kaune.</p>
+        <p class="p-meta"><span>3D vizualizacijos</span><span>2023</span></p>
+        
+      </div>
+      <div class="p-media"><div class="col"><button class="ph first" type="button" style="aspect-ratio: 803 / 911" data-g="2" data-o="0" aria-label="Didinti: Valgomasis su apvaliu stikliniu stalu ir mėlynu paveikslu"><img src="img/kaunas-valgomasis.webp" width="803" height="911" alt="Valgomasis su apvaliu stikliniu stalu ir mėlynu paveikslu" loading="lazy" decoding="async"></button></div><div class="col"><button class="ph" type="button" style="aspect-ratio: 953 / 472" data-g="2" data-o="1" aria-label="Didinti: Svetainė su baltomis sieninėmis spintomis"><img src="img/kaunas-svetaine.webp" width="953" height="472" alt="Svetainė su baltomis sieninėmis spintomis" loading="lazy" decoding="async"></button><button class="ph" type="button" style="aspect-ratio: 953 / 435" data-g="2" data-o="2" aria-label="Didinti: Svetainė su lenkta žalia sofa ir virtuve"><img src="img/kaunas-virtuve.webp" width="953" height="435" alt="Svetainė su lenkta žalia sofa ir virtuve" loading="lazy" decoding="async"></button></div></div>
+    </article>
+    <article class="project g12" id="p-dielektrik" aria-labelledby="p-dielektrik-t" data-axis="x">
+      <div class="p-text">
+        <h3 class="up" id="p-dielektrik-t">Dielektrik</h3>
+        <p>Įmonės biuras, kurtas kartu su dizainere Lidia. Pagrindinis projekto tikslas buvo seno pastato interjerą paversti šiuolaikišku ir moderniu. Šiuo metu biuras įgyvendinamas, meistrai jį realizuoja pagal projektą.</p>
+        <p class="p-meta"><span>Techniniai brėžiniai<br>3D vizualizacijos</span><span>2024–2026<br>Realizuojamas</span></p>
+        <p class="p-pal" role="img" aria-label="Spalvinė gama: #80868D, #655748, #F1F0EC, #271D17"><i style="--c: #80868D"></i><i style="--c: #655748"></i><i style="--c: #F1F0EC"></i><i style="--c: #271D17"></i></p>
+      </div>
+      <div class="p-media"><div class="col"><button class="ph first" type="button" style="aspect-ratio: 1004 / 596" data-g="3" data-o="0" aria-label="Didinti: Dielektrik biuro registratūra su akmens stalu"><img src="img/dielektrik-registratura.webp" width="1004" height="596" alt="Dielektrik biuro registratūra su akmens stalu" loading="lazy" decoding="async"></button><button class="ph" type="button" style="aspect-ratio: 956 / 732" data-g="3" data-o="2" aria-label="Didinti: Posėdžių salė su akmens imitacijos siena ir ekranu"><img src="img/dielektrik-posedziai-1.webp" width="956" height="732" alt="Posėdžių salė su akmens imitacijos siena ir ekranu" loading="lazy" decoding="async"></button></div><div class="col"><button class="ph" type="button" style="aspect-ratio: 899 / 596" data-g="3" data-o="1" aria-label="Didinti: Laukiamasis su rudais foteliais prie stiklinės pertvaros"><img src="img/dielektrik-laukiamasis.webp" width="899" height="596" alt="Laukiamasis su rudais foteliais prie stiklinės pertvaros" loading="lazy" decoding="async"></button><button class="ph" type="button" style="aspect-ratio: 963 / 732" data-g="3" data-o="3" aria-label="Didinti: Stiklinė posėdžių salė ir darbo zona"><img src="img/dielektrik-posedziai-2.webp" width="963" height="732" alt="Stiklinė posėdžių salė ir darbo zona" loading="lazy" decoding="async"></button></div></div>
+    </article>
+    <article class="project g12" id="p-expoera" aria-labelledby="p-expoera-t" data-axis="y">
+      <div class="p-text">
+        <h3 class="up" id="p-expoera-t">Expoera</h3>
+        <p>Kartu su „Expoera“ projektavau stendus Lietuvos įmonėms užsienio parodose. Stende „Lithuania“ visos įmonės stovi po vienu žaliu portalu, kad šalis matytųsi kaip vienas ženklas.</p>
+        <p class="p-meta"><span>Stendų planai<br>3D vizualizacijos</span><span>Iki 2022</span></p>
+        
+      </div>
+      <div class="p-media"><div class="col"><button class="ph first" type="button" style="aspect-ratio: 1368 / 977" data-g="4" data-o="0" aria-label="Didinti: Žalias parodos stendas „Lithuania“"><img src="img/expoera-stendas.webp" width="1368" height="977" alt="Žalias parodos stendas „Lithuania“" loading="lazy" decoding="async"></button><button class="ph" type="button" style="aspect-ratio: 1600 / 898" data-g="4" data-o="2" aria-label="Didinti: Stendas „Lithuania“ iš kitos pusės"><img src="img/expoera-stendas-2.webp" width="1600" height="898" alt="Stendas „Lithuania“ iš kitos pusės" loading="lazy" decoding="async"></button></div><div class="col"><button class="ph sheet" type="button" style="aspect-ratio: 1000 / 1301" data-g="4" data-o="1" aria-label="Didinti: Stendo planas su sunumeruotomis įmonių zonomis"><img src="img/expoera-planas.webp" width="438" height="926" alt="Stendo planas su sunumeruotomis įmonių zonomis" loading="lazy" decoding="async"></button></div></div>
+    </article>
+    <article class="project g12" id="p-rambynas" aria-labelledby="p-rambynas-t" data-axis="x">
+      <div class="p-text">
+        <h3 class="up" id="p-rambynas-t">Rambyno muziejus</h3>
+        <p>Muziejaus atnaujinimo konkursas, II vieta. Mansardoje ekspozicija veda lankytoją ratu – pro liečiamus ekranus, į grindis įmontuotą maketą ir supynes, o pirmame aukšte pasitinka priėmimo zona.</p>
+        <p class="p-meta"><span>Zonų ir baldų planai<br>3D vizualizacijos</span><span>2022<br>II vieta</span></p>
+        <button class="p-more" type="button" data-g="5">Visi brėžiniai (3)</button>
+      </div>
+      <div class="p-media"><div class="span"><button class="ph first" type="button" style="aspect-ratio: 952 / 523" data-g="5" data-o="0" aria-label="Didinti: Rambyno muziejaus mansardos ekspozicija su maketu po stiklu grindyse"><img src="img/rambynas-mansarda-1.webp" width="952" height="523" alt="Rambyno muziejaus mansardos ekspozicija su maketu po stiklu grindyse" loading="lazy" decoding="async"></button></div><div class="col"><button class="ph" type="button" style="aspect-ratio: 958 / 541" data-g="5" data-o="1" aria-label="Didinti: Pirmojo aukšto darbo vieta ir valgomojo stalas"><img src="img/rambynas-pirmas-aukstas-1.webp" width="958" height="541" alt="Pirmojo aukšto darbo vieta ir valgomojo stalas" loading="lazy" decoding="async"></button><button class="ph" type="button" style="aspect-ratio: 955 / 532" data-g="5" data-o="3" aria-label="Didinti: Medinės lamelės ir darbo vieta pirmajame aukšte"><img src="img/rambynas-pirmas-aukstas-2.webp" width="955" height="532" alt="Medinės lamelės ir darbo vieta pirmajame aukšte" loading="lazy" decoding="async"></button></div><div class="col"><button class="ph" type="button" style="aspect-ratio: 961 / 487" data-g="5" data-o="2" aria-label="Didinti: Mansarda su supynėmis prie lango ir javų juosta"><img src="img/rambynas-mansarda-2.webp" width="961" height="487" alt="Mansarda su supynėmis prie lango ir javų juosta" loading="lazy" decoding="async"></button><button class="ph sheet" type="button" style="aspect-ratio: 1000 / 615" data-g="5" data-o="4" aria-label="Didinti: Rambyno muziejaus mansardos ekspozicinis baldų planas M1:50"><img src="img/rambynas-mansardos-planas.webp" width="1914" height="1026" alt="Rambyno muziejaus mansardos ekspozicinis baldų planas M1:50" loading="lazy" decoding="async"></button></div><button class="ph sheet" type="button" hidden style="aspect-ratio: 1932 / 770" data-g="5" data-o="5" aria-label="Didinti: Rambyno muziejaus mansardos ekspozicinių zonų planas M1:50"><img src="img/rambynas-zonu-planas.webp" width="1932" height="770" alt="Rambyno muziejaus mansardos ekspozicinių zonų planas M1:50" loading="lazy" decoding="async"></button><button class="ph sheet" type="button" hidden style="aspect-ratio: 1920 / 964" data-g="5" data-o="6" aria-label="Didinti: Rambyno muziejaus pirmojo aukšto planas"><img src="img/rambynas-pirmo-auksto-planas.webp" width="1920" height="964" alt="Rambyno muziejaus pirmojo aukšto planas" loading="lazy" decoding="async"></button></div>
+    </article>
+    <article class="project g12" id="p-comfyhub" aria-labelledby="p-comfyhub-t" data-axis="y">
+      <div class="p-text">
+        <h3 class="up" id="p-comfyhub-t">Comfyhub</h3>
+        <p>244 m² biuro koncepcija: registratūra, darbo zonos, posėdžių ir poilsio patalpos. Tamsios akustinės lubų grotelės, samanų šviestuvai ir bordo virtuvė suteikia biurui charakterį.</p>
+        <p class="p-meta"><span>Planai<br>Pjūviai<br>3D vizualizacijos</span><span>Koncepcija</span></p>
+        
+      </div>
+      <div class="p-media"><div class="span"><button class="ph first" type="button" style="aspect-ratio: 1081 / 525" data-g="6" data-o="0" aria-label="Didinti: Poilsio patalpa su bordo virtuve ir stalo futbolu"><img src="img/comfyhub-poilsio-zona.webp" width="1081" height="525" alt="Poilsio patalpa su bordo virtuve ir stalo futbolu" loading="lazy" decoding="async"></button></div><div class="col"><button class="ph" type="button" style="aspect-ratio: 848 / 1030" data-g="6" data-o="1" aria-label="Didinti: Comfyhub registratūra su juodu ovaliu stalu"><img src="img/comfyhub-registratura.webp" width="848" height="1030" alt="Comfyhub registratūra su juodu ovaliu stalu" loading="lazy" decoding="async"></button><button class="ph sheet" type="button" style="aspect-ratio: 155 / 100" data-g="6" data-o="3" aria-label="Didinti: Biuro baldų ir grindų dangų planas M1:50"><img src="img/comfyhub-planas.webp" width="1459" height="1078" alt="Biuro baldų ir grindų dangų planas M1:50" loading="lazy" decoding="async"></button></div><div class="col"><button class="ph" type="button" style="aspect-ratio: 548 / 501" data-g="6" data-o="2" aria-label="Didinti: Darbo zona su baltais stalais"><img src="img/comfyhub-darbo-zona.webp" width="548" height="501" alt="Darbo zona su baltais stalais" loading="lazy" decoding="async"></button><button class="ph" type="button" style="aspect-ratio: 529 / 501" data-g="6" data-o="4" aria-label="Didinti: Darbo vietos su akustinėmis pertvaromis"><img src="img/comfyhub-kabina.webp" width="529" height="501" alt="Darbo vietos su akustinėmis pertvaromis" loading="lazy" decoding="async"></button></div></div>
+    </article>
+    <article class="project g12" id="p-structum" aria-labelledby="p-structum-t" data-axis="x">
+      <div class="p-text">
+        <h3 class="up" id="p-structum-t">Structum</h3>
+        <p>Viešbučio ir jo liukso kambario konkursas, kurtas kartu su „Shori“ komanda. Mano indėlis – baldų išdėstymo planai ir vizualizacijos.</p>
+        <p class="p-meta"><span>Baldų planai<br>3D vizualizacijos</span><span>Konkursas</span></p>
+        
+      </div>
+      <div class="p-media"><div class="span"><button class="ph first" type="button" style="aspect-ratio: 907 / 493" data-g="7" data-o="0" aria-label="Didinti: Miegamasis su akvareliniu kalnų ir miško tapetu"><img src="img/shori-miegamasis.webp" width="907" height="493" alt="Miegamasis su akvareliniu kalnų ir miško tapetu" loading="lazy" decoding="async"></button></div><div class="col"><button class="ph" type="button" style="aspect-ratio: 736 / 1084" data-g="7" data-o="1" aria-label="Didinti: Dušas su ryškaus marmuro plokšte"><img src="img/shori-dusas.webp" width="736" height="1084" alt="Dušas su ryškaus marmuro plokšte" loading="lazy" decoding="async"></button></div><div class="col"><button class="ph" type="button" style="aspect-ratio: 907 / 587" data-g="7" data-o="2" aria-label="Didinti: Praustuvo zona su medine spintele"><img src="img/shori-vonia.webp" width="907" height="587" alt="Praustuvo zona su medine spintele" loading="lazy" decoding="async"></button><button class="ph sheet" type="button" style="aspect-ratio: 121 / 100" data-g="7" data-o="3" aria-label="Didinti: Viešbučio ir liukso kambario baldų planai M1:50"><img src="img/structum-planai.webp" width="1445" height="958" alt="Viešbučio ir liukso kambario baldų planai M1:50" loading="lazy" decoding="async"></button></div></div>
+    </article>
+    <article class="project g12" id="p-salonas" aria-labelledby="p-salonas-t" data-axis="y">
+      <div class="p-text">
+        <h3 class="up" id="p-salonas-t">Grožio salonas</h3>
+        <p>Recepcija, kirpimo vietos, baras ir procedūrų kabinetas. Šviesus akmuo, medžio lamelės ir paslėptas apšvietimas – erdvė, kurioje pirmiausia norisi atsikvėpti.</p>
+        <p class="p-meta"><span>3D vizualizacijos</span><span>Koncepcija</span></p>
+        
+      </div>
+      <div class="p-media"><div class="col"><button class="ph first" type="button" style="aspect-ratio: 955 / 514" data-g="8" data-o="0" aria-label="Didinti: Grožio salono recepcija su oniksu dengtu stalu"><img src="img/salonas-recepcija.webp" width="955" height="514" alt="Grožio salono recepcija su oniksu dengtu stalu" loading="lazy" decoding="async"></button><button class="ph" type="button" style="aspect-ratio: 955 / 505" data-g="8" data-o="2" aria-label="Didinti: Baras su apšviesta lentynų siena"><img src="img/salonas-baras.webp" width="955" height="505" alt="Baras su apšviesta lentynų siena" loading="lazy" decoding="async"></button></div><div class="col"><button class="ph" type="button" style="aspect-ratio: 960 / 514" data-g="8" data-o="1" aria-label="Didinti: Kirpimo vietos prie didelių langų"><img src="img/salonas-kirpykla.webp" width="960" height="514" alt="Kirpimo vietos prie didelių langų" loading="lazy" decoding="async"></button><button class="ph" type="button" style="aspect-ratio: 960 / 505" data-g="8" data-o="3" aria-label="Didinti: Procedūrų kabinetas su medinėmis sienų plokštėmis"><img src="img/salonas-kabinetas.webp" width="960" height="505" alt="Procedūrų kabinetas su medinėmis sienų plokštėmis" loading="lazy" decoding="async"></button></div></div>
+    </article>
+    <article class="project g12" id="p-pirmosios" aria-labelledby="p-pirmosios-t" data-axis="x">
+      <div class="p-text">
+        <h3 class="up" id="p-pirmosios-t">Pirmosios vizualizacijos</h3>
+        <p>Pirmieji darbai su ArchiCAD: virtuvė, svetainė ir vonios kambarys. Nuo jų prasidėjo mano kelias interjero dizaine.</p>
+        <p class="p-meta"><span>3D vizualizacijos</span><span>2017–2018</span></p>
+        <p class="p-pal" role="img" aria-label="Spalvinė gama: #816144, #A19078, #807D75, #BCB4AC"><i style="--c: #816144"></i><i style="--c: #A19078"></i><i style="--c: #807D75"></i><i style="--c: #BCB4AC"></i></p>
+      </div>
+      <div class="p-media"><div class="span"><button class="ph first" type="button" style="aspect-ratio: 1014 / 537" data-g="9" data-o="0" aria-label="Didinti: Svetainė su balta kampine sofa"><img src="img/pirmosios-svetaine.webp" width="1014" height="537" alt="Svetainė su balta kampine sofa" loading="lazy" decoding="async"></button></div><div class="col"><button class="ph" type="button" style="aspect-ratio: 912 / 537" data-g="9" data-o="1" aria-label="Didinti: Virtuvė su šviesia sala ir medinėmis baro kėdėmis"><img src="img/pirmosios-virtuve.webp" width="912" height="537" alt="Virtuvė su šviesia sala ir medinėmis baro kėdėmis" loading="lazy" decoding="async"></button></div><div class="col"><button class="ph" type="button" style="aspect-ratio: 912 / 483" data-g="9" data-o="2" aria-label="Didinti: Vonios kambarys su laisvai stovinčia vonia"><img src="img/pirmosios-vonia.webp" width="912" height="483" alt="Vonios kambarys su laisvai stovinčia vonia" loading="lazy" decoding="async"></button></div></div>
+    </article>
+  </section>
+</main>
+
+<footer class="foot" id="kontaktai" aria-label="Kontaktai">
+  <div class="f-grid g12">
+    <ul class="m-projects"><li><a href="#p-uzupis" data-nopeek="img/uzupis-virtuve.webp">Interjeras Užupyje</a></li><li><a href="#p-butas" data-nopeek="img/butas-svetaine-2.webp">Įgyvendintas butas Kaune</a></li><li><a href="#p-kaunas" data-nopeek="img/kaunas-valgomasis.webp">Interjeras Kaune</a></li><li><a href="#p-dielektrik" data-nopeek="img/dielektrik-registratura.webp">Dielektrik</a></li><li><a href="#p-expoera" data-nopeek="img/expoera-stendas.webp">Expoera</a></li><li><a href="#p-rambynas" data-nopeek="img/rambynas-mansarda-1.webp">Rambyno muziejus</a></li><li><a href="#p-comfyhub" data-nopeek="img/comfyhub-poilsio-zona.webp">Comfyhub</a></li><li><a href="#p-structum" data-nopeek="img/shori-miegamasis.webp">Structum</a></li><li><a href="#p-salonas" data-nopeek="img/salonas-recepcija.webp">Grožio salonas</a></li><li><a href="#p-pirmosios" data-nopeek="img/pirmosios-svetaine.webp">Pirmosios vizualizacijos</a></li></ul>
+    <ul class="m-pages"><li><a href="#apie">Apie mane</a></li><li><a href="#kelias">Patirtis</a></li><li><a href="#darbai">Darbai</a></li><li><a href="#kontaktai">Kontaktai</a></li></ul>
+    <div class="m-bio"><p>Esu Steponas Nemira, diplomuotas interjero dizaineris. Esu žingeidus, linksmas ir nuoširdus žmogus, kuriuo galima pasitikėti. Pagrindinė vertybė – abipusė pagarba.</p><p class="tap"><a href="tel:+37069413878"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h3.2l1.8 4.6-2.3 1.5a12 12 0 0 0 6.7 6.7l1.5-2.3 4.6 1.8V19a1.5 1.5 0 0 1-1.6 1.5A16.5 16.5 0 0 1 3.5 5.1 1.5 1.5 0 0 1 5 3.5z"/></svg><span>+370 694 13878</span></a><a href="mailto:stepas.nemira@gmail.com"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5.5" width="18" height="13" rx="1"/><path d="m3.5 6.5 8.5 6.5 8.5-6.5"/></svg><span>stepas.nemira@gmail.com</span></a></p><p class="copy">© <span class="yr">2026</span> Steponas Nemira. Visos teisės saugomos.</p></div>
+  </div>
+  <div class="strip">
+    <div class="marquee" aria-label="Šiuo metu ieškau aplinkos tobulėjimui ir naujoms patirtims"><div class="mq-track" aria-hidden="true"><span>Šiuo metu ieškau aplinkos tobulėjimui ir naujoms patirtims ·</span><span>Šiuo metu ieškau aplinkos tobulėjimui ir naujoms patirtims ·</span><span>Šiuo metu ieškau aplinkos tobulėjimui ir naujoms patirtims ·</span><span>Šiuo metu ieškau aplinkos tobulėjimui ir naujoms patirtims ·</span><span>Šiuo metu ieškau aplinkos tobulėjimui ir naujoms patirtims ·</span><span>Šiuo metu ieškau aplinkos tobulėjimui ir naujoms patirtims ·</span><span>Šiuo metu ieškau aplinkos tobulėjimui ir naujoms patirtims ·</span><span>Šiuo metu ieškau aplinkos tobulėjimui ir naujoms patirtims ·</span></div></div>
+    <a class="strip-top" href="#apie">Į viršų ↑</a>
+  </div>
+</footer>
+
+<div class="peek" id="peek" aria-hidden="true"><img alt=""></div>
+
+<dialog class="lb" id="lb" aria-label="Vaizdo peržiūra">
+  <div class="lb-stage" id="lb-stage"><img id="lb-img" src="" alt=""></div>
+  <div class="lb-bar">
+    <p class="lb-ctrl"><button type="button" id="lb-prev" aria-label="Ankstesnis vaizdas">←</button><span id="lb-count"></span><button type="button" id="lb-next" aria-label="Kitas vaizdas">→</button><button type="button" id="lb-close">Uždaryti</button></p>
+  </div>
+</dialog>
+
+<script>
+(() => {
+  'use strict';
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  const EASE = 'cubic-bezier(0.33, 1, 0.68, 1)';
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const hasIO = 'IntersectionObserver' in window;
+  $$('.yr').forEach(n => { n.textContent = new Date().getFullYear(); });
+
+  /* ---------- Sound: synthesized with Web Audio, off by default ---------- */
+  const Sound = (() => {
+    let ctx = null, master = null, on = false;
+    try { on = localStorage.getItem('sn-garsas') === 'on'; } catch (e) {}
+    const ensure = () => {
+      if (!ctx) {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return null;
+        ctx = new AC();
+        master = ctx.createGain();
+        master.gain.value = 0.25;
+        master.connect(ctx.destination);
+      }
+      if (ctx.state === 'suspended') ctx.resume();
+      return ctx;
+    };
+    const tone = (f0, f1, dur, type, vol) => {
+      const c = ensure(); if (!c) return;
+      const t = c.currentTime;
+      const o = c.createOscillator(), g = c.createGain();
+      o.type = type;
+      o.frequency.setValueAtTime(f0, t);
+      if (f1) o.frequency.exponentialRampToValueAtTime(f1, t + dur);
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(vol, t + 0.004);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      o.connect(g); g.connect(master);
+      o.start(t); o.stop(t + dur + 0.02);
+    };
+    const noise = (dur, ftype, freq, vol) => {
+      const c = ensure(); if (!c) return;
+      const t = c.currentTime;
+      const buf = c.createBuffer(1, Math.ceil(c.sampleRate * dur), c.sampleRate);
+      const d = buf.getChannelData(0);
+      for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+      const s = c.createBufferSource(); s.buffer = buf;
+      const f = c.createBiquadFilter(); f.type = ftype; f.frequency.value = freq;
+      const g = c.createGain();
+      g.gain.setValueAtTime(vol, t);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      s.connect(f); f.connect(g); g.connect(master);
+      s.start(t); s.stop(t + dur);
+    };
+    const kit = {
+      thump: () => tone(150, 50, 0.08, 'sine', 0.9),
+      tick: () => tone(3400, null, 0.02, 'triangle', 0.05),
+      blop: () => tone(640, 280, 0.08, 'sine', 0.45),
+      stamp: () => { tone(95, 42, 0.09, 'sine', 1); noise(0.06, 'lowpass', 800, 0.3); },
+      roll: () => tone(1800, null, 0.012, 'square', 0.02)
+    };
+    return {
+      get on() { return on; },
+      set(v) { on = v; try { localStorage.setItem('sn-garsas', v ? 'on' : 'off'); } catch (e) {} if (v) ensure(); },
+      play(n) { if (!on) return; try { kit[n](); } catch (e) {} }
+    };
+  })();
+  const soundBtn = $('#sound-btn');
+  const paintSound = () => {
+    soundBtn.setAttribute('aria-pressed', String(Sound.on));
+    soundBtn.setAttribute('aria-label', Sound.on ? 'Garsas įjungtas' : 'Garsas išjungtas');
+  };
+  paintSound();
+  soundBtn.addEventListener('click', () => { Sound.set(!Sound.on); paintSound(); Sound.play('tick'); });
+
+  /* ---------- Menu ---------- */
+  const menuBtn = $('#menu-btn'), menu = $('#menu'), main = $('main'), foot = $('.foot');
+  let menuOpen = false;
+  menu.inert = true;
+  const setMenu = open => {
+    if (open === menuOpen) return;
+    menuOpen = open;
+    menu.classList.toggle('open', open);
+    menu.inert = !open;
+    menu.setAttribute('aria-hidden', String(!open));
+    menuBtn.setAttribute('aria-expanded', String(open));
+    menuBtn.textContent = open ? 'Uždaryti' : 'Menu';
+    main.inert = open;
+    foot.inert = open;
+    Sound.play('thump');
+    if (open) { const f = menu.querySelector('a'); if (f) f.focus({ preventScroll: true }); }
+  };
+  menuBtn.addEventListener('click', () => setMenu(!menuOpen));
+  menu.addEventListener('click', e => { if (e.target.closest('a')) setMenu(false); });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && menuOpen) { setMenu(false); menuBtn.focus(); }
+  });
+
+  const mList = $('.menu .m-projects'), mPrev = $('.m-preview'), mImg = mPrev.querySelector('img');
+  const mLinks = $$('a', mList);
+  const showPreview = a => {
+    if (!fine) return;
+    if (mImg.getAttribute('src') !== a.dataset.peek) mImg.src = a.dataset.peek;
+    mPrev.classList.add('on');
+    mList.classList.add('dim');
+    mLinks.forEach(x => x.classList.toggle('on', x === a));
+  };
+  const hidePreview = () => { mPrev.classList.remove('on'); mList.classList.remove('dim'); mLinks.forEach(x => x.classList.remove('on')); };
+  mLinks.forEach(a => {
+    a.addEventListener('pointerenter', () => { showPreview(a); Sound.play('tick'); });
+    a.addEventListener('focus', () => showPreview(a));
+  });
+  mList.addEventListener('pointerleave', hidePreview);
+  mList.addEventListener('focusout', e => { if (!mList.contains(e.relatedTarget)) hidePreview(); });
+  $$('.menu .m-pages a').forEach(a => a.addEventListener('pointerenter', () => Sound.play('tick')));
+
+  const clock = $('.clock');
+  try {
+    const fmt = new Intl.DateTimeFormat('lt-LT', { timeZone: 'Europe/Vilnius', hour: '2-digit', minute: '2-digit' });
+    const tickClock = () => { clock.textContent = fmt.format(new Date()); };
+    tickClock();
+    setInterval(tickClock, 20000);
+  } catch (e) { clock.textContent = ''; }
+
+  /* ---------- Images: shimmer until loaded ---------- */
+  $$('.ph img').forEach(img => {
+    const done = () => img.parentElement.classList.add('loaded');
+    if (img.complete && img.naturalWidth) done();
+    else { img.addEventListener('load', done); img.addEventListener('error', done); }
+  });
+  /* ---------- Lightbox ---------- */
+  const lb = $('#lb'), lbImg = $('#lb-img'), lbCount = $('#lb-count'), lbStage = $('#lb-stage');
+  let group = [], gi = 0, opener = null;
+  const showLb = n => {
+    gi = (n + group.length) % group.length;
+    const b = group[gi], im = b.querySelector('img');
+    lbImg.src = im.currentSrc || im.src;
+    lbImg.alt = im.alt;
+    lbCount.textContent = (gi + 1) + ' / ' + group.length;
+  };
+  const step = d => { showLb(gi + d); Sound.play('blop'); };
+  $$('.ph').forEach(b => b.addEventListener('click', () => {
+    group = $$('.ph[data-g="' + b.dataset.g + '"]').sort((x, y) => x.dataset.o - y.dataset.o);
+    opener = b;
+    showLb(group.indexOf(b));
+    lb.showModal();
+    document.documentElement.classList.add('locked');
+  }));
+  // "Visi brėžiniai" opens the lightbox at the grid drawing; the lightbox-only drawings follow it
+  $$('.p-more').forEach(m => m.addEventListener('click', () => {
+    $('.ph.sheet[data-g="' + m.dataset.g + '"]:not([hidden])').click();
+    opener = m;
+  }));
+  $('#lb-prev').addEventListener('click', () => step(-1));
+  $('#lb-next').addEventListener('click', () => step(1));
+  $('#lb-close').addEventListener('click', () => lb.close());
+  lb.addEventListener('close', () => { document.documentElement.classList.remove('locked'); if (opener) opener.focus(); });
+  lb.addEventListener('keydown', e => {
+    if (e.key === 'ArrowLeft') step(-1);
+    if (e.key === 'ArrowRight') step(1);
+  });
+  let sx = null;
+  lbStage.addEventListener('pointerdown', e => { sx = e.clientX; });
+  lbStage.addEventListener('pointerup', e => {
+    if (sx === null) return;
+    const dx = e.clientX - sx;
+    sx = null;
+    if (Math.abs(dx) > 40) step(dx < 0 ? 1 : -1);
+    else if (e.target === lbStage) lb.close();
+  });
+
+  /* ---------- Timeline ---------- */
+  const CH = [{"t": "Pradžia", "s": "Pirmoji pažintis su interjero dizainu ir programa, su kuria dirbu iki šiol."}, {"t": "Pirmieji užsakymai", "s": "Pirmieji klientai ir pirmieji įgyvendinti projektai: nuo vizualizacijų iki viso namo."}, {"t": "Architektūros pagrindai", "s": "Žingsnis link architektūros: erdvė, mastelis, konstrukcija."}, {"t": "Diplomas ir konkursai", "s": "Profesinės studijos, konkursai ir pirmieji interjero projektai."}, {"t": "Studijoje", "s": "Patirtis dizaino studijose, kartu su komanda ir užsakovais."}, {"t": "Skaitmeniniai produktai", "s": "Dizainas ir pardavimai užsienio rinkai, nuo svetainių iki spausdinamos reklamos."}, {"t": "Dabar", "s": "Projektai, kurie vyksta šiuo metu."}, {"t": "Įrankiai", "s": "Programos, su kuriomis dirbu beveik kasdien."}, {"t": "Kalbos", "s": "Kalbos, kuriomis moku kalbėti, rašyti ir skaityti."}];
+  const entriesBox = $('#entries'), fill = $('#tl-fill');
+  const items = $$('#entries [data-yr]');
+  const chaps = $$('#entries .chap');
+  const counterEl = $('#counter'), miniY = $('#mini-y');
+  const chapT = $('#chap-t'), chapS = $('#chap-s'), miniC = $('#mini-c');
+  const ticks = $$('.tick');
+
+  const odometer = (el, withSound) => {
+    let cur = '';
+    return val => {
+      val = String(val);
+      if (val === cur) return;
+      const prev = cur;
+      cur = val;
+      el.setAttribute('aria-label', val);
+      if (!prev || reduce) {
+        el.textContent = '';
+        [...val].forEach(ch => {
+          const c = document.createElement('span'); c.className = 'od-cell';
+          const s = document.createElement('span'); s.className = 'od-ch'; s.textContent = ch;
+          c.appendChild(s); el.appendChild(c);
+        });
+        return;
+      }
+      const n = Math.max(prev.length, val.length);
+      const cells = [...el.children];
+      while (cells.length < n) { const c = document.createElement('span'); c.className = 'od-cell'; el.appendChild(c); cells.push(c); }
+      let k = 0;
+      cells.forEach((cell, i) => {
+        const b = val[i] || '';
+        const olds = [...cell.children];
+        const last = olds[olds.length - 1];
+        if ((last && last.textContent === b && olds.length === 1) || (!last && !b)) return;
+        const nu = document.createElement('span');
+        nu.className = 'od-ch';
+        nu.textContent = b || '​';
+        cell.appendChild(nu);
+        const delay = k++ * 30;
+        olds.forEach(o => {
+          o.animate([{ transform: 'translateY(0)' }, { transform: 'translateY(-100%)' }], { duration: 400, delay, easing: EASE, fill: 'forwards' }).onfinish = () => o.remove();
+        });
+        nu.animate([{ transform: 'translateY(100%)' }, { transform: 'translateY(0)' }], { duration: 400, delay, easing: EASE, fill: 'backwards' });
+        if (withSound) setTimeout(() => Sound.play('roll'), delay);
+      });
+      setTimeout(() => { [...el.children].forEach((c, i) => { if (i >= cur.length) c.remove(); }); }, 460 + n * 30);
+    };
+  };
+  const setYear = odometer(counterEl, true);
+  const setMini = odometer(miniY, false);
+
+  let curChap = -1, curYr = null;
+  const setChapter = ci => {
+    if (ci === curChap) return;
+    const first = curChap === -1;
+    curChap = ci;
+    const swap = () => { const c = CH[curChap]; chapT.textContent = c.t; chapS.textContent = c.s; miniC.textContent = c.t; };
+    if (first || reduce) { swap(); return; }
+    const box = chapT.parentElement;
+    box.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 150, fill: 'forwards' }).onfinish = () => {
+      swap();
+      box.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 250, fill: 'forwards' });
+    };
+  };
+
+  const update = () => {
+    const mid = window.innerHeight * 0.5;
+    let act = items[0];
+    for (const it of items) { if (it.getBoundingClientRect().top <= mid) act = it; else break; }
+    const yr = act.dataset.yr;
+    if (yr !== curYr) {
+      curYr = yr;
+      setYear(yr);
+      setMini({ DABAR: 'Šiuo metu', 'ĮRANKIAI': 'Programos', KALBOS: 'Bendravimas' }[yr] || yr);
+      counterEl.classList.toggle('now', yr === 'DABAR');
+      const ty = Number.isNaN(Number(yr)) ? 2026 : Number(yr);
+      ticks.forEach(t => t.classList.toggle('on', Number(t.dataset.y) === ty));
+    }
+    setChapter(Number(act.dataset.c));
+    const r = entriesBox.getBoundingClientRect();
+    const p = Math.min(1, Math.max(0, (mid - r.top) / r.height));
+    fill.style.transform = 'scaleY(' + p + ')';
+    const reach = p * r.height;
+    chaps.forEach(c => c.querySelector('.node').classList.toggle('lit', c.offsetTop <= reach + 1));
+  };
+  let tlOn = true, queued = false;
+  const onScroll = () => {
+    if (!tlOn || queued) return;
+    queued = true;
+    requestAnimationFrame(() => { queued = false; update(); });
+  };
+  if (hasIO) new IntersectionObserver(es => { tlOn = es[0].isIntersecting; if (tlOn) update(); }).observe($('#kelias'));
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll);
+  update();
+
+  ticks.forEach(t => {
+    t.addEventListener('pointerenter', () => Sound.play('tick'));
+    t.addEventListener('click', () => {
+      const y = Number(t.dataset.y);
+      const list = $$('#entries .entry');
+      const target = list.find(en => Number(en.dataset.r0) <= y && y <= Number(en.dataset.r1)) || list.find(en => Number(en.dataset.r0) >= y) || list[list.length - 1];
+      const top = window.scrollY + target.getBoundingClientRect().top - window.innerHeight * 0.5 + 8;
+      window.scrollTo({ top, behavior: reduce ? 'auto' : 'smooth' });
+    });
+  });
+
+  const applyFilter = f => {
+    $$('.filters button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.f === f)));
+    $('#mini-f').value = f;
+    $$('#entries .entry').forEach(en => en.classList.toggle('dim', f !== 'visi' && en.dataset.type !== f));
+  };
+  $$('.filters button').forEach(b => b.addEventListener('click', () => applyFilter(b.dataset.f)));
+  $('#mini-f').addEventListener('change', e => applyFilter(e.target.value));
+
+  if (hasIO) {
+    const nums = $$('.tl-stats .n');
+    const statsIO = new IntersectionObserver(es => {
+      if (!es[0].isIntersecting) return;
+      statsIO.disconnect();
+      if (reduce) return;
+      const t0 = performance.now();
+      nums.forEach(n => { n.textContent = '0'; });
+      const run = now => {
+        const k = Math.min(1, (now - t0) / 800);
+        const eased = 1 - Math.pow(1 - k, 3);
+        nums.forEach(n => { n.textContent = Math.round(Number(n.dataset.to) * eased); });
+        if (k < 1) requestAnimationFrame(run);
+      };
+      requestAnimationFrame(run);
+    }, { threshold: 0.5 });
+    statsIO.observe($('.tl-stats'));
+  }
+
+  if (!reduce && hasIO) {
+    const rise = new IntersectionObserver(es => {
+      let k = 0;
+      es.forEach(en => {
+        if (!en.isIntersecting) return;
+        rise.unobserve(en.target);
+        const el = en.target;
+        const to = el.classList.contains('dim') ? 0.15 : 1;
+        el.animate([{ opacity: 0, transform: 'translateY(12px)' }, { opacity: to, transform: 'none' }], { duration: 500, delay: k++ * 60, easing: EASE, fill: 'backwards' });
+      });
+    }, { rootMargin: '0px 0px -6% 0px' });
+    $$('#entries .entry:not(.mile), #entries .chap-h, #entries .sub').forEach(el => rise.observe(el));
+
+    const stamp = new IntersectionObserver(es => es.forEach(en => {
+      if (!en.isIntersecting) return;
+      stamp.unobserve(en.target);
+      en.target.animate([{ opacity: 0, transform: 'scale(1.12)' }, { opacity: 1, transform: 'scale(1)' }], { duration: 350, easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)', fill: 'backwards' });
+      Sound.play('stamp');
+    }), { threshold: 0.6 });
+    $$('.mile-word').forEach(m => stamp.observe(m));
+
+    const toolsIO = new IntersectionObserver(es => es.forEach(en => {
+      if (!en.isIntersecting) return;
+      toolsIO.unobserve(en.target);
+      $$('.tool', en.target).forEach((t, i) => t.animate([{ opacity: 0, transform: 'scale(0.8)' }, { opacity: 1, transform: 'scale(1)' }], { duration: 300, delay: i * 50, easing: EASE, fill: 'backwards' }));
+    }), { threshold: 0.4 });
+    toolsIO.observe($('.tools'));
+  }
+
+  /* ---------- Thumbnail preview that follows the cursor ---------- */
+  const peek = $('#peek'), peekImg = peek.querySelector('img');
+  if (fine && !reduce) {
+    let tx = 0, ty = 0, x = 0, y = 0, raf = 0, shown = false;
+    const aim = e => {
+      tx = Math.max(8, e.clientX - 344);
+      ty = Math.max(8, Math.min(e.clientY - 120, window.innerHeight - 260));
+    };
+    const loop = () => {
+      x += (tx - x) * 0.15;
+      y += (ty - y) * 0.15;
+      peek.style.transform = 'translate3d(' + x.toFixed(1) + 'px, ' + y.toFixed(1) + 'px, 0)';
+      raf = (shown || Math.abs(tx - x) > 0.5 || Math.abs(ty - y) > 0.5) ? requestAnimationFrame(loop) : 0;
+    };
+    $$('.thumb').forEach(t => {
+      t.addEventListener('pointerenter', e => {
+        if (peekImg.getAttribute('src') !== t.dataset.peek) peekImg.src = t.dataset.peek;
+        aim(e);
+        if (!shown) { x = tx; y = ty; }
+        shown = true;
+        peek.classList.add('on');
+        Sound.play('tick');
+        if (!raf) raf = requestAnimationFrame(loop);
+      });
+      t.addEventListener('pointermove', aim);
+      t.addEventListener('pointerleave', () => { shown = false; peek.classList.remove('on'); });
+    });
+  }
+})();
+
+</script>
+</body>
+</html>
