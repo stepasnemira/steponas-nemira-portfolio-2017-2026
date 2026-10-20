@@ -577,104 +577,103 @@ button { font: inherit; color: inherit; }
       play(n) { if (!on) return; try { kit[n](); } catch (e) {} }
     };
   })();
-  /* ---------- Music: generative Mediterranean jazz house (nylon guitar, Rhodes, deep bass, house drums, congas), off by default ---------- */
+  /* ---------- Music: generative 70s soul groove (Rhodes, finger bass, strings, guitar, warm drums), off by default ---------- */
   const Music = (() => {
-    const BPM = 94, SPB = 60 / BPM, BAR = SPB * 4, SW = 0.03, LEVEL = 0.5;
-    // chord: [bass root (MIDI), voicing intervals above the root, melody scale (semitones above the root)]
-    const MAJ = [0, 2, 4, 7, 9, 11], DOR = [0, 2, 3, 5, 7, 9, 10], MIX = [0, 2, 4, 5, 7, 9, 10], PHR = [0, 1, 4, 5, 7, 8, 10], LOC = [0, 1, 3, 5, 6, 8, 10];
+    const BPM = 95, SPB = 60 / BPM, BAR = SPB * 4, SW = 0.02, LEVEL = 0.5;
+    // chord: [bass root (MIDI), voicing intervals above the root, scale for fills (semitones above the root)]
+    const MAJ = [0, 2, 4, 7, 9], MIN = [0, 3, 5, 7, 10], DOM = [0, 2, 4, 7, 9, 10];
     const CH = {
-      Am9: [45, [3, 7, 10, 14], DOR], G69: [43, [4, 9, 14, 16], MIX], Fmaj9: [41, [4, 7, 11, 14], MAJ], E7b9: [40, [4, 10, 13, 16], PHR],
-      Dm9: [38, [3, 7, 10, 14], DOR], G13: [43, [4, 10, 14, 21], MIX], Cmaj9: [36, [4, 7, 11, 14], MAJ], Bm7b5: [47, [3, 6, 10, 13], LOC]
+      Gmaj9: [43, [4, 7, 11, 14], MAJ], 'F#m7': [42, [3, 7, 10, 14], MIN], Em9: [40, [3, 7, 10, 14], MIN], A13: [45, [4, 10, 14, 21], DOM],
+      B7b9: [47, [4, 10, 13, 16], DOM], Bm9: [47, [3, 7, 10, 14], MIN], E9: [40, [4, 7, 10, 14], DOM], Dmaj9: [38, [4, 7, 11, 14], MAJ]
     };
-    // Andalusian cadence (A) and a jazz bridge (B), AABA
-    const A = ['Am9', 'Am9', 'G69', 'G69', 'Fmaj9', 'Fmaj9', 'E7b9', 'E7b9'];
-    const B = ['Dm9', 'G13', 'Cmaj9', 'Fmaj9', 'Bm7b5', 'E7b9', 'Am9', 'E7b9'];
+    // each bar: one or two chords
+    const A = [['Gmaj9'], ['F#m7'], ['Em9'], ['A13'], ['Gmaj9'], ['F#m7', 'B7b9'], ['Em9'], ['A13']];
+    const B = [['Bm9'], ['E9'], ['Gmaj9'], ['F#m7'], ['Em9'], ['A13'], ['Dmaj9'], ['A13']];
     const FORM = [...A, ...A, ...B, ...A];
     const mtof = n => 440 * Math.pow(2, (n - 69) / 12);
     const rnd = a => a[Math.floor(Math.random() * a.length)];
     const hum = () => (Math.random() - 0.5) * 0.008;
-    const p16 = i => (Math.floor(i / 2) * 0.5 + (i % 2 ? 0.25 + SW : 0)) * SPB; // lightly shuffled sixteenth inside a bar
+    const p16 = i => (Math.floor(i / 2) * 0.5 + (i % 2 ? 0.25 + SW : 0)) * SPB; // sixteenth inside a bar, a touch behind on the off-16ths
     const fold = (ns, centre) => { const k = Math.round((centre - ns.reduce((a, b) => a + b, 0) / ns.length) / 12); return ns.map(n => n + 12 * k); };
     const voicing = (name, centre) => { const [r, iv] = CH[name]; return fold(iv.map(i => r + 12 + i), centre); };
-    const inScale = (name, lo, hi) => { const [r, , sc] = CH[name], out = []; for (let n = lo; n <= hi; n++) if (sc.includes(((n - r) % 12 + 12) % 12)) out.push(n); return out; };
+    const inScale = (name, lo, hi) => { const [r, , sc] = CH[name], o = []; for (let n = lo; n <= hi; n++) if (sc.includes(((n - r) % 12 + 12) % 12)) o.push(n); return o; };
+    const nearest = (ns, to) => ns.reduce((a, n) => Math.abs(n - to) < Math.abs(a - to) ? n : a, ns[0]);
 
-    let ctx = null, out, bus, keys, gtr, drums, verb, noise, timer = null, playing = false;
-    let nextBar = 0, bar = 0, lastNote = 69;
+    let ctx = null, out, bus, keys, strings, gtr, drums, verb, noise, timer = null, playing = false;
+    let nextBar = 0, bar = 0, lastLine = 78;
     const ks = {};
 
     const build = c => {
       ctx = c;
       out = c.createGain(); out.gain.value = 0;
       const comp = c.createDynamicsCompressor();
-      comp.threshold.value = -18; comp.ratio.value = 3; comp.attack.value = 0.008; comp.release.value = 0.2;
-      const air = c.createBiquadFilter(); air.type = 'lowpass'; air.frequency.value = 11000;
+      comp.threshold.value = -18; comp.ratio.value = 3; comp.attack.value = 0.01; comp.release.value = 0.22;
+      const tape = c.createBiquadFilter(); tape.type = 'lowpass'; tape.frequency.value = 9500; // soft, record-like top end
       bus = c.createGain();
-      bus.connect(air); air.connect(comp); comp.connect(out); out.connect(c.destination);
+      bus.connect(tape); tape.connect(comp); comp.connect(out); out.connect(c.destination);
       verb = c.createConvolver();
-      const len = Math.floor(c.sampleRate * 2.2), ir = c.createBuffer(2, len, c.sampleRate);
-      for (let ch = 0; ch < 2; ch++) { const d = ir.getChannelData(ch); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3.5); }
+      const len = Math.floor(c.sampleRate * 2), ir = c.createBuffer(2, len, c.sampleRate);
+      for (let ch = 0; ch < 2; ch++) { const d = ir.getChannelData(ch); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3.2); }
       verb.buffer = ir;
-      const wet = c.createGain(); wet.gain.value = 0.25; verb.connect(wet); wet.connect(bus);
-      keys = c.createGain();
-      const pan = c.createStereoPanner ? c.createStereoPanner() : c.createGain();
-      if (pan.pan) { const lfo = c.createOscillator(), dep = c.createGain(); lfo.frequency.value = 0.9; dep.gain.value = 0.35; lfo.connect(dep); dep.connect(pan.pan); lfo.start(); }
-      keys.connect(pan); pan.connect(bus); pan.connect(verb);
-      // nylon guitar body: warm low-mid bump, soft top
-      gtr = c.createGain();
-      const body = c.createBiquadFilter(); body.type = 'peaking'; body.frequency.value = 220; body.Q.value = 1; body.gain.value = 4;
-      const soft = c.createBiquadFilter(); soft.type = 'lowpass'; soft.frequency.value = 4200;
-      gtr.connect(body); body.connect(soft); soft.connect(bus);
-      const gsend = c.createGain(); gsend.gain.value = 0.6; soft.connect(gsend); gsend.connect(verb);
+      const wet = c.createGain(); wet.gain.value = 0.22; verb.connect(wet); wet.connect(bus);
+      const panned = (amount, rate) => {
+        const p = c.createStereoPanner ? c.createStereoPanner() : c.createGain();
+        if (p.pan && rate) { const lfo = c.createOscillator(), dep = c.createGain(); lfo.frequency.value = rate; dep.gain.value = amount; lfo.connect(dep); dep.connect(p.pan); lfo.start(); }
+        else if (p.pan) p.pan.value = amount;
+        return p;
+      };
+      keys = c.createGain(); const kp = panned(0.3, 1.2); keys.connect(kp); kp.connect(bus); kp.connect(verb);
+      strings = c.createGain(); const sp = panned(-0.25, 0); const sf = c.createBiquadFilter(); sf.type = 'lowpass'; sf.frequency.value = 2600;
+      strings.connect(sf); sf.connect(sp); sp.connect(bus); const ssend = c.createGain(); ssend.gain.value = 0.9; sp.connect(ssend); ssend.connect(verb);
+      gtr = c.createGain(); const gp = panned(0.45, 0); const gh = c.createBiquadFilter(); gh.type = 'highpass'; gh.frequency.value = 350;
+      gtr.connect(gh); gh.connect(gp); gp.connect(bus);
       drums = c.createGain(); drums.connect(bus);
-      const dsend = c.createGain(); dsend.gain.value = 0.18; drums.connect(dsend); dsend.connect(verb);
+      const dsend = c.createGain(); dsend.gain.value = 0.15; drums.connect(dsend); dsend.connect(verb);
       noise = c.createBuffer(1, c.sampleRate, c.sampleRate);
       const nd = noise.getChannelData(0); for (let i = 0; i < nd.length; i++) nd[i] = Math.random() * 2 - 1;
     };
 
-    // Karplus-Strong plucked string, rendered once per pitch and cached
-    const pluckBuf = n => {
-      if (ks[n]) return ks[n];
-      const sr = ctx.sampleRate, f = mtof(n), N = Math.max(2, Math.round(sr / f)), len = Math.floor(sr * 1.8);
-      const buf = ctx.createBuffer(1, len, sr), d = buf.getChannelData(0), ring = new Float32Array(N);
-      for (let i = 0; i < N; i++) ring[i] = Math.random() * 2 - 1;
-      for (let k = 0; k < 3; k++) for (let i = 1; i < N; i++) ring[i] = 0.5 * (ring[i] + ring[i - 1]); // soft, thumb-like attack
-      const decay = f > 500 ? 0.993 : 0.996;
-      for (let i = 0, idx = 0; i < len; i++) {
-        const cur = ring[idx], nxt = ring[(idx + 1) % N];
-        d[i] = cur; ring[idx] = decay * 0.5 * (cur + nxt); idx = (idx + 1) % N;
-      }
-      return (ks[n] = buf);
-    };
-    const pluck = (n, t, v, dur = 1.6) => {
-      const s = ctx.createBufferSource(), g = ctx.createGain();
-      s.buffer = pluckBuf(n);
-      g.gain.setValueAtTime(0.55 * v, t); g.gain.setTargetAtTime(0.0001, t + dur, 0.15);
-      s.connect(g); g.connect(gtr); s.start(t); s.stop(t + dur + 0.8);
-    };
-    const ep = (n, t, dur, v) => { // Rhodes stab: two-operator FM
+    const ep = (n, t, dur, v) => { // Rhodes: two-operator FM, mellow
       const f = mtof(n), car = ctx.createOscillator(), mod = ctx.createOscillator(), mg = ctx.createGain(), g = ctx.createGain();
       car.frequency.value = f; mod.frequency.value = f;
-      mg.gain.setValueAtTime(f * 1.6 * v, t); mg.gain.exponentialRampToValueAtTime(f * 0.15, t + 0.5);
+      mg.gain.setValueAtTime(f * 1.5 * v, t); mg.gain.exponentialRampToValueAtTime(f * 0.1, t + 0.8);
       mod.connect(mg); mg.connect(car.frequency);
-      g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(0.11 * v, t + 0.005);
-      g.gain.setTargetAtTime(0.05 * v, t + 0.01, 0.3); g.gain.setTargetAtTime(0.0001, t + dur, 0.08);
-      car.connect(g); g.connect(keys); car.start(t); mod.start(t); car.stop(t + dur + 0.6); mod.stop(t + dur + 0.6);
+      g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(0.17 * v, t + 0.006);
+      g.gain.setTargetAtTime(0.08 * v, t + 0.01, 0.5); g.gain.setTargetAtTime(0.0001, t + dur, 0.1);
+      car.connect(g); g.connect(keys); car.start(t); mod.start(t); car.stop(t + dur + 0.7); mod.stop(t + dur + 0.7);
     };
-    const pad = (ns, t, dur) => { // warm detuned pad under everything
-      ns.forEach((n, j) => [-6, 6].forEach(cents => {
-        const o = ctx.createOscillator(), lp = ctx.createBiquadFilter(), g = ctx.createGain();
+    const str = (n, t, dur, v) => { // string-machine ensemble: three detuned saws, slow swell
+      [-9, 0, 9].forEach(cents => {
+        const o = ctx.createOscillator(), g = ctx.createGain();
         o.type = 'sawtooth'; o.frequency.value = mtof(n); o.detune.value = cents;
-        lp.type = 'lowpass'; lp.frequency.value = 900;
-        g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(0.012, t + 0.6); g.gain.setTargetAtTime(0.0001, t + dur - 0.2, 0.35);
-        o.connect(lp); lp.connect(g); g.connect(keys); o.start(t + j * 0.01); o.stop(t + dur + 1.5);
-      }));
+        g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(0.022 * v, t + 0.35);
+        g.gain.setTargetAtTime(0.0001, t + dur, 0.3);
+        o.connect(g); g.connect(strings); o.start(t); o.stop(t + dur + 1.6);
+      });
     };
-    const bass = (n, t, dur, v) => {
+    const pluckBuf = n => { // Karplus-Strong string, cached per pitch
+      if (ks[n]) return ks[n];
+      const sr = ctx.sampleRate, f = mtof(n), N = Math.max(2, Math.round(sr / f)), len = Math.floor(sr * 0.6);
+      const buf = ctx.createBuffer(1, len, sr), d = buf.getChannelData(0), ring = new Float32Array(N);
+      for (let i = 0; i < N; i++) ring[i] = Math.random() * 2 - 1;
+      for (let i = 1; i < N; i++) ring[i] = 0.5 * (ring[i] + ring[i - 1]);
+      for (let i = 0, idx = 0; i < len; i++) { const cur = ring[idx]; d[i] = cur; ring[idx] = 0.994 * 0.5 * (cur + ring[(idx + 1) % N]); idx = (idx + 1) % N; }
+      return (ks[n] = buf);
+    };
+    const scratch = (ns, t, v) => { // muted soul guitar double-stop
+      ns.forEach((n, j) => {
+        const s = ctx.createBufferSource(), g = ctx.createGain();
+        s.buffer = pluckBuf(n);
+        g.gain.setValueAtTime(0.4 * v, t + j * 0.008); g.gain.setTargetAtTime(0.0001, t + 0.09, 0.03);
+        s.connect(g); g.connect(gtr); s.start(t + j * 0.008); s.stop(t + 0.4);
+      });
+    };
+    const bass = (n, t, dur, v) => { // finger bass: round, short decay
       const f = mtof(n), o = ctx.createOscillator(), s = ctx.createOscillator(), lp = ctx.createBiquadFilter(), g = ctx.createGain();
-      o.type = 'square'; o.frequency.value = f; s.frequency.value = f;
-      lp.type = 'lowpass'; lp.Q.value = 2; lp.frequency.setValueAtTime(1100, t); lp.frequency.exponentialRampToValueAtTime(380, t + 0.18);
-      g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(0.13 * v, t + 0.008);
-      g.gain.setTargetAtTime(0.07 * v, t + 0.02, 0.2); g.gain.setTargetAtTime(0.0001, t + dur, 0.04);
+      o.type = 'triangle'; o.frequency.value = f; s.frequency.value = f;
+      lp.type = 'lowpass'; lp.Q.value = 1.5; lp.frequency.setValueAtTime(1300, t); lp.frequency.exponentialRampToValueAtTime(450, t + 0.2);
+      g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(0.15 * v, t + 0.01);
+      g.gain.setTargetAtTime(0.07 * v, t + 0.02, 0.22); g.gain.setTargetAtTime(0.0001, t + dur, 0.04);
       o.connect(lp); s.connect(lp); lp.connect(g); g.connect(bus); o.start(t); s.start(t); o.stop(t + dur + 0.3); s.stop(t + dur + 0.3);
     };
     const nz = (t, type, freq, q, dur, vol) => {
@@ -686,79 +685,74 @@ button { font: inherit; color: inherit; }
     const drum = (t, type, v) => {
       if (type === 'kick') {
         const o = ctx.createOscillator(), g = ctx.createGain();
-        o.frequency.setValueAtTime(95, t); o.frequency.exponentialRampToValueAtTime(46, t + 0.09);
-        g.gain.setValueAtTime(0.42 * v, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.26);
-        o.connect(g); g.connect(drums); o.start(t); o.stop(t + 0.3);
-      } else if (type === 'clap') {
-        [0, 0.011, 0.022].forEach(d => nz(t + d, 'bandpass', 1500, 0.9, 0.03, 0.16 * v));
-        nz(t + 0.03, 'bandpass', 1400, 0.7, 0.16, 0.1 * v);
-      } else if (type === 'hat') nz(t, 'highpass', 8000, 0.7, 0.11, 0.07 * v);
-      else if (type === 'shaker') nz(t, 'bandpass', 6500, 0.9, 0.04, 0.05 * v);
-      else { // conga high / low
-        const o = ctx.createOscillator(), g = ctx.createGain(), f = type === 'congaHi' ? 330 : 220;
-        o.frequency.setValueAtTime(f * 1.4, t); o.frequency.exponentialRampToValueAtTime(f, t + 0.03);
-        g.gain.setValueAtTime(0.22 * v, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.2);
-        o.connect(g); g.connect(drums); o.start(t); o.stop(t + 0.22);
-        nz(t, 'bandpass', 2500, 1, 0.015, 0.05 * v);
-      }
+        o.frequency.setValueAtTime(85, t); o.frequency.exponentialRampToValueAtTime(45, t + 0.1);
+        g.gain.setValueAtTime(0.45 * v, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.3);
+        o.connect(g); g.connect(drums); o.start(t); o.stop(t + 0.32);
+      } else if (type === 'snare') { // fat, damped 70s snare
+        nz(t, 'bandpass', 1900, 0.6, 0.24, 0.26 * v);
+        const o = ctx.createOscillator(), g = ctx.createGain();
+        o.type = 'triangle'; o.frequency.setValueAtTime(200, t); o.frequency.exponentialRampToValueAtTime(165, t + 0.06);
+        g.gain.setValueAtTime(0.16 * v, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.12);
+        o.connect(g); g.connect(drums); o.start(t); o.stop(t + 0.14);
+      } else if (type === 'hat') nz(t, 'highpass', 7500, 0.7, 0.045, 0.1 * v);
+      else if (type === 'open') nz(t, 'highpass', 7000, 0.7, 0.25, 0.07 * v);
+      else if (type === 'tamb') { [0, 0.012, 0.024].forEach(d => nz(t + d, 'bandpass', 8500, 2, 0.06, 0.05 * v)); }
     };
 
     const scheduleBar = (b, t0) => {
       const fi = b % FORM.length, cyc = Math.floor(b / FORM.length), sec = Math.floor(fi / 8), inSec = fi % 8;
-      const name = FORM[fi], [root] = CH[name], prevName = FORM[(fi + FORM.length - 1) % FORM.length], nextName = FORM[(fi + 1) % FORM.length];
-      const groove = b >= 4 && !(cyc % 2 === 1 && sec === 2 && inSec < 2); // short breakdown in every other bridge
-      const bridge = sec === 2;
+      const chords = FORM[fi], per = 4 / chords.length, bridge = sec === 2;
+      const drop = cyc % 2 === 1 && sec === 3 && inSec < 2; // short breakdown before the last A on every other pass
+      const bassOn = b >= 2 && !drop, drumsOn = b >= 4 && !drop, extras = b >= 8;
 
-      // pad (held across repeated chords) + Rhodes stabs
-      const v4 = voicing(name, 63);
-      if (b === 0 || name !== prevName) pad(v4, t0, BAR * (name === nextName ? 2 : 1));
-      if (groove) rnd([[6, 14], [3, 6, 11, 14], [2, 10], [6, 11, 14], [3, 10]]).forEach(i => {
-        const v = 0.75 + Math.random() * 0.25, st = t0 + p16(i) + hum();
-        v4.forEach((n, j) => ep(n, st + j * 0.006, SPB * 0.32, v));
+      chords.forEach((name, ci) => {
+        const ct = t0 + ci * per * SPB, [root] = CH[name], v4 = voicing(name, 62);
+        const slots = per * 4; // sixteenths in this chord
+        // Rhodes: a held chord, then a syncopated push, and a short fill now and then
+        ep(v4[0], ct + hum(), per * SPB * 0.9, 0.8); v4.slice(1).forEach((n, j) => ep(n, ct + (j + 1) * 0.007 + hum(), per * SPB * 0.9, 0.8));
+        if (per === 4) rnd([[10], [6, 14], [7], [10, 14]]).forEach(i => v4.forEach((n, j) => ep(n, ct + p16(i) + j * 0.006 + hum(), SPB * 0.4, 0.65)));
+        const fillBar = inSec % 2 === 1 && ci === chords.length - 1 && !(extras && (bridge || cyc >= 1));
+        if (fillBar && Math.random() < 0.75) {
+          const sc = inScale(name, 72, 86), start = sc.indexOf(nearest(sc, 79));
+          const run = rnd([[0, 1, 2, 1], [2, 1, 0, -1], [0, 2, 1, 3], [3, 2, 0, 1]]);
+          run.forEach((d, k) => ep(sc[Math.max(0, Math.min(sc.length - 1, start + d))], ct + p16(slots - 4 + k) + hum(), SPB * 0.3, 0.7));
+        }
+        // strings: a slow counter-line on chord tones from the second A, a pad before that
+        if (extras) {
+          const tones = voicing(name, 80).concat(voicing(name, 68));
+          if (bridge || cyc >= 1) {
+            const n1 = nearest(tones, lastLine + rnd([-2, -1, 1, 2])); str(n1, ct, per * SPB * (per === 4 ? 0.5 : 1), 1); lastLine = n1;
+            if (per === 4) { const n2 = nearest(tones.filter(n => n !== n1), lastLine + rnd([-3, -1, 1, 3])); str(n2, ct + 2 * SPB, 2 * SPB, 0.9); lastLine = n2; }
+          } else if (ci === 0 && inSec % 2 === 0) voicing(name, 66).forEach(n => str(n, ct, BAR * 2 * 0.95, 0.55));
+        }
+        // finger bass: root on the one, syncopated pickups, octave pop, approach into the next chord
+        if (bassOn) {
+          const nextName = ci + 1 < chords.length ? chords[ci + 1] : FORM[(fi + 1) % FORM.length][0];
+          let tgt = CH[nextName][0]; while (tgt - root > 6) tgt -= 12; while (root - tgt > 6) tgt += 12;
+          const pat = per === 4
+            ? rnd([[[0, root, 3], [3, root, 1], [6, root + 12, 1], [8, root + 7, 2], [11, root, 1], [14, tgt - 1, 1]],
+                   [[0, root, 2], [6, root, 1], [7, root + 7, 1], [10, root + 12, 2], [13, root + 10, 1], [15, tgt + 1, 1]],
+                   [[0, root, 4], [6, root + 7, 1], [8, root, 2], [11, root + 3 + (CH[name][2] === MIN ? 0 : 1), 1], [14, tgt - 2, 1]]])
+            : [[0, root, 3], [3, root + 7, 1], [6, tgt + (Math.random() < 0.5 ? -1 : 1), 1]];
+          pat.forEach(([i, n, l]) => bass(n, ct + p16(i) + hum(), l * SPB * 0.25 * 0.92, i === 0 ? 1 : 0.85));
+        }
+        // guitar: muted double-stops on the offbeats
+        if (extras && !drop) {
+          const top = voicing(name, 70).slice(-2);
+          (per === 4 ? [2, 6, 10, 14] : [2, 6]).forEach(i => scratch(top, ct + p16(i) + hum(), i % 4 === 2 ? 0.9 : 0.7));
+        }
       });
 
-      // nylon guitar: arpeggios in the A sections, a melody over the bridge and later choruses
-      const melody = (bridge && b >= 8) || (cyc >= 1 && inSec >= 4 && Math.random() < 0.6);
-      if (!melody) {
-        const arp = voicing(name, 66), order = rnd([[0, 1, 2, 3, 2, 1, 2, 3], [0, 2, 1, 3, 0, 2, 1, 3], [3, 2, 1, 0, 1, 2, 3, 2]]);
-        order.forEach((k, s) => pluck(arp[k], t0 + p16(s * 2) + hum(), s % 2 ? 0.55 : 0.75));
-        if (b >= 4) pluck(root + 12, t0 + hum(), 0.6);
-      } else {
-        const pitches = inScale(name, 60, 81);
-        let idx = pitches.reduce((best, n, i) => Math.abs(n - lastNote) < Math.abs(pitches[best] - lastNote) ? i : best, 0);
-        const rhythm = rnd([[0, 3, 6, 8, 11, 14], [2, 4, 6, 10, 12], [0, 2, 3, 6, 9, 12, 14], [3, 6, 8, 10, 14], [0, 6, 8, 11]]);
-        rhythm.forEach((s, k) => {
-          if (inSec % 2 === 1 && k === rhythm.length - 1) { // phrase end: land on a chord tone
-            const tones = voicing(name, lastNote);
-            const land = tones.reduce((a, n) => Math.abs(n - lastNote) < Math.abs(a - lastNote) ? n : a, tones[0]);
-            pluck(land, t0 + p16(s) + hum(), 0.9); lastNote = land;
-            return;
-          }
-          idx = Math.max(0, Math.min(pitches.length - 1, idx + rnd([-2, -1, -1, 1, 1, 2, -3, 3])));
-          pluck(pitches[idx], t0 + p16(s) + hum(), 0.65 + Math.random() * 0.3); lastNote = pitches[idx];
-        });
-      }
-
-      // deep house bass
-      if (groove) {
-        const fifth = root + 7, oct = root + 12;
-        rnd([
-          [[0, root, 2], [3, root, 1], [6, oct, 1], [8, root, 2], [11, fifth, 1], [14, root, 1]],
-          [[0, root, 3], [6, root, 1], [7, oct, 1], [10, fifth, 2], [14, oct, 1]],
-          [[0, root, 2], [3, oct, 1], [8, root, 2], [10, fifth, 1], [13, root, 2]]
-        ]).forEach(([i, n, l]) => bass(n, t0 + p16(i) + hum(), l * SPB * 0.25 * 0.9, i === 0 ? 1 : 0.85));
-        if (inSec % 2 === 1) { const tgt = CH[nextName][0]; bass(tgt + (tgt > root ? -1 : 1), t0 + p16(15), SPB * 0.2, 0.7); }
-      }
-
-      // drums: shaker always, four-on-the-floor kick, offbeat hats, claps on 2 and 4, congas later
-      for (let i = 0; i < 16; i++) drum(t0 + p16(i) + hum(), 'shaker', [0.6, 1, 0.75, 1.1][i % 4] * (b >= 2 ? 1 : 0.6));
-      if (groove) {
-        for (let q = 0; q < 4; q++) { drum(t0 + q * SPB, 'kick', q === 0 ? 1 : 0.9); drum(t0 + p16(q * 4 + 2) + hum(), 'hat', 1); }
-        [4, 12].forEach(i => drum(t0 + p16(i) + hum(), 'clap', 1));
-      }
-      if (b >= 8 && (bridge || cyc >= 1)) rnd([[3, 6, 10, 11, 14], [2, 3, 7, 10, 15], [3, 6, 9, 12, 14]])
-        .forEach((i, k) => drum(t0 + p16(i) + hum(), k % 2 ? 'congaLo' : 'congaHi', 0.8 + Math.random() * 0.2));
-      if (inSec === 7 && groove) [12, 13, 14, 15].forEach((i, k) => drum(t0 + p16(i) + hum(), k % 2 ? 'congaLo' : 'congaHi', 0.6 + k * 0.1));
+      // drums
+      if (drumsOn) {
+        for (let i = 0; i < 16; i++) if (!(i === 14 && inSec % 4 === 3)) drum(t0 + p16(i) + hum(), 'hat', [1, 0.45, 0.7, 0.5][i % 4]);
+        if (inSec % 4 === 3) drum(t0 + p16(14), 'open', 1);
+        rnd([[0, 7, 10], [0, 8, 10], [0, 3, 8, 11], [0, 10]]).forEach(i => drum(t0 + p16(i), 'kick', i === 0 ? 1 : 0.85));
+        [4, 12].forEach(i => drum(t0 + p16(i) + hum(), 'snare', 1));
+        if (Math.random() < 0.4) drum(t0 + p16(rnd([7, 9, 15])) + hum(), 'snare', 0.22);
+        if (bridge || cyc >= 1) [4, 12].forEach(i => drum(t0 + p16(i) + 0.01, 'tamb', 1));
+        if (inSec === 7) [12, 13, 14, 15].forEach((i, k) => drum(t0 + p16(i) + hum(), 'snare', 0.35 + k * 0.12));
+      } else if (b >= 2 && !drop) for (let i = 0; i < 8; i++) drum(t0 + p16(i * 2) + hum(), 'hat', i % 2 ? 0.5 : 0.8);
     };
 
     const tick = () => { while (nextBar < ctx.currentTime + 0.4) { scheduleBar(bar, nextBar); nextBar += BAR; bar++; } };
