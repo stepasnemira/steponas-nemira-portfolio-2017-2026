@@ -97,14 +97,6 @@ button { font: inherit; color: inherit; }
 }
 .bar-name { padding-block: 12px; text-decoration: none; white-space: nowrap; justify-self: start; }
 .bar-menu { background: none; border: 0; padding: 10px 12px; text-transform: uppercase; font-weight: 500; cursor: pointer; }
-.bar-sound { justify-self: end; display: flex; align-items: center; gap: 8px; min-width: 40px; height: 40px; margin-right: -10px; padding: 0 10px; background: none; border: 0; color: inherit; font: inherit; text-transform: uppercase; cursor: pointer; }
-.bar-sound svg { fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
-.bar-sound .spk { fill: currentColor; stroke: none; }
-.bar-sound .wave { display: none; }
-.bar-sound[aria-pressed="true"] .wave { display: inline; }
-.bar-sound[aria-pressed="true"] .cross { display: none; }
-.bar-sound[aria-pressed="true"] .wave { animation: beat 1.28s ease-in-out infinite; }
-@keyframes beat { 50% { opacity: 0.35; } }
 
 /* Menu panel */
 .menu {
@@ -322,7 +314,6 @@ button { font: inherit; color: inherit; }
   .strip { gap: 12px; }
   .lb-bar { justify-content: center; }
   .bar { grid-template-columns: auto auto minmax(0, 1fr); column-gap: 12px; }
-  .bar-sound-l { display: none; }
   .m-projects a, .m-pages a { padding-block: 6px; }
   .peek { display: none; }
 }
@@ -332,7 +323,6 @@ button { font: inherit; color: inherit; }
   .mq-track { animation: none; }
   .js .ph::after { animation: none; }
   .menu, .menu.open { transition: none; }
-  .bar-sound .wave { animation: none !important; }
 }
 
 </style>
@@ -343,9 +333,6 @@ button { font: inherit; color: inherit; }
 <header class="bar">
   <a class="bar-name" href="#apie">Steponas Nemira</a>
   <button class="bar-menu" type="button" id="menu-btn" aria-expanded="false" aria-controls="menu">Menu</button>
-  <button class="bar-sound" type="button" id="sound-btn" aria-pressed="false" aria-label="Įjungti muziką">
-    <span class="bar-sound-l" aria-hidden="true">Muzika</span><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path class="spk" d="M3 9h4l5-4v14l-5-4H3z"/><path class="wave" d="M15.5 8.5a5 5 0 0 1 0 7M18 6a8.5 8.5 0 0 1 0 12"/><path class="cross" d="M16 9l6 6M22 9l-6 6"/></svg>
-  </button>
 </header>
 
 <nav class="menu" id="menu" aria-label="Meniu" aria-hidden="true">
@@ -516,287 +503,6 @@ button { font: inherit; color: inherit; }
   const hasIO = 'IntersectionObserver' in window;
   $$('.yr').forEach(n => { n.textContent = new Date().getFullYear(); });
 
-  /* ---------- Sound: synthesized with Web Audio, off by default; the same switch plays the music ---------- */
-  const Sound = (() => {
-    let ctx = null, master = null, on = false;
-    try { on = localStorage.getItem('sn-muzika') === 'on'; } catch (e) {}
-    const ensure = () => {
-      if (!ctx) {
-        const AC = window.AudioContext || window.webkitAudioContext;
-        if (!AC) return null;
-        ctx = new AC();
-        master = ctx.createGain();
-        master.gain.value = 0.25;
-        master.connect(ctx.destination);
-      }
-      if (ctx.state === 'suspended') ctx.resume();
-      return ctx;
-    };
-    const tone = (f0, f1, dur, type, vol) => {
-      const c = ensure(); if (!c) return;
-      const t = c.currentTime;
-      const o = c.createOscillator(), g = c.createGain();
-      o.type = type;
-      o.frequency.setValueAtTime(f0, t);
-      if (f1) o.frequency.exponentialRampToValueAtTime(f1, t + dur);
-      g.gain.setValueAtTime(0.0001, t);
-      g.gain.exponentialRampToValueAtTime(vol, t + 0.004);
-      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-      o.connect(g); g.connect(master);
-      o.start(t); o.stop(t + dur + 0.02);
-    };
-    const noise = (dur, ftype, freq, vol) => {
-      const c = ensure(); if (!c) return;
-      const t = c.currentTime;
-      const buf = c.createBuffer(1, Math.ceil(c.sampleRate * dur), c.sampleRate);
-      const d = buf.getChannelData(0);
-      for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
-      const s = c.createBufferSource(); s.buffer = buf;
-      const f = c.createBiquadFilter(); f.type = ftype; f.frequency.value = freq;
-      const g = c.createGain();
-      g.gain.setValueAtTime(vol, t);
-      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-      s.connect(f); f.connect(g); g.connect(master);
-      s.start(t); s.stop(t + dur);
-    };
-    const kit = {
-      thump: () => tone(150, 50, 0.08, 'sine', 0.9),
-      tick: () => tone(3400, null, 0.02, 'triangle', 0.05),
-      blop: () => tone(640, 280, 0.08, 'sine', 0.45),
-      stamp: () => { tone(95, 42, 0.09, 'sine', 1); noise(0.06, 'lowpass', 800, 0.3); },
-      roll: () => tone(1800, null, 0.012, 'square', 0.02)
-    };
-    return {
-      get on() { return on; },
-      set(v) {
-        on = v;
-        try { localStorage.setItem('sn-muzika', v ? 'on' : 'off'); } catch (e) {}
-        if (v) Music.start(ensure()); else Music.stop();
-      },
-      audio: () => ensure(),
-      play(n) { if (!on) return; try { kit[n](); } catch (e) {} }
-    };
-  })();
-  /* ---------- Music: generative 70s soul groove (Rhodes, finger bass, strings, guitar, warm drums), off by default ---------- */
-  const Music = (() => {
-    const BPM = 95, SPB = 60 / BPM, BAR = SPB * 4, SW = 0.02, LEVEL = 0.5;
-    // chord: [bass root (MIDI), voicing intervals above the root, scale for fills (semitones above the root)]
-    const MAJ = [0, 2, 4, 7, 9], MIN = [0, 3, 5, 7, 10], DOM = [0, 2, 4, 7, 9, 10];
-    const CH = {
-      Gmaj9: [43, [4, 7, 11, 14], MAJ], 'F#m7': [42, [3, 7, 10, 14], MIN], Em9: [40, [3, 7, 10, 14], MIN], A13: [45, [4, 10, 14, 21], DOM],
-      B7b9: [47, [4, 10, 13, 16], DOM], Bm9: [47, [3, 7, 10, 14], MIN], E9: [40, [4, 7, 10, 14], DOM], Dmaj9: [38, [4, 7, 11, 14], MAJ]
-    };
-    // each bar: one or two chords
-    const A = [['Gmaj9'], ['F#m7'], ['Em9'], ['A13'], ['Gmaj9'], ['F#m7', 'B7b9'], ['Em9'], ['A13']];
-    const B = [['Bm9'], ['E9'], ['Gmaj9'], ['F#m7'], ['Em9'], ['A13'], ['Dmaj9'], ['A13']];
-    const FORM = [...A, ...A, ...B, ...A];
-    const mtof = n => 440 * Math.pow(2, (n - 69) / 12);
-    const rnd = a => a[Math.floor(Math.random() * a.length)];
-    const hum = () => (Math.random() - 0.5) * 0.008;
-    const p16 = i => (Math.floor(i / 2) * 0.5 + (i % 2 ? 0.25 + SW : 0)) * SPB; // sixteenth inside a bar, a touch behind on the off-16ths
-    const fold = (ns, centre) => { const k = Math.round((centre - ns.reduce((a, b) => a + b, 0) / ns.length) / 12); return ns.map(n => n + 12 * k); };
-    const voicing = (name, centre) => { const [r, iv] = CH[name]; return fold(iv.map(i => r + 12 + i), centre); };
-    const inScale = (name, lo, hi) => { const [r, , sc] = CH[name], o = []; for (let n = lo; n <= hi; n++) if (sc.includes(((n - r) % 12 + 12) % 12)) o.push(n); return o; };
-    const nearest = (ns, to) => ns.reduce((a, n) => Math.abs(n - to) < Math.abs(a - to) ? n : a, ns[0]);
-
-    let ctx = null, out, bus, keys, strings, gtr, drums, verb, noise, timer = null, playing = false;
-    let nextBar = 0, bar = 0, lastLine = 78;
-    const ks = {};
-
-    const build = c => {
-      ctx = c;
-      out = c.createGain(); out.gain.value = 0;
-      const comp = c.createDynamicsCompressor();
-      comp.threshold.value = -18; comp.ratio.value = 3; comp.attack.value = 0.01; comp.release.value = 0.22;
-      const tape = c.createBiquadFilter(); tape.type = 'lowpass'; tape.frequency.value = 9500; // soft, record-like top end
-      bus = c.createGain();
-      bus.connect(tape); tape.connect(comp); comp.connect(out); out.connect(c.destination);
-      verb = c.createConvolver();
-      const len = Math.floor(c.sampleRate * 2), ir = c.createBuffer(2, len, c.sampleRate);
-      for (let ch = 0; ch < 2; ch++) { const d = ir.getChannelData(ch); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3.2); }
-      verb.buffer = ir;
-      const wet = c.createGain(); wet.gain.value = 0.22; verb.connect(wet); wet.connect(bus);
-      const panned = (amount, rate) => {
-        const p = c.createStereoPanner ? c.createStereoPanner() : c.createGain();
-        if (p.pan && rate) { const lfo = c.createOscillator(), dep = c.createGain(); lfo.frequency.value = rate; dep.gain.value = amount; lfo.connect(dep); dep.connect(p.pan); lfo.start(); }
-        else if (p.pan) p.pan.value = amount;
-        return p;
-      };
-      keys = c.createGain(); const kp = panned(0.3, 1.2); keys.connect(kp); kp.connect(bus); kp.connect(verb);
-      strings = c.createGain(); const sp = panned(-0.25, 0); const sf = c.createBiquadFilter(); sf.type = 'lowpass'; sf.frequency.value = 2600;
-      strings.connect(sf); sf.connect(sp); sp.connect(bus); const ssend = c.createGain(); ssend.gain.value = 0.9; sp.connect(ssend); ssend.connect(verb);
-      gtr = c.createGain(); const gp = panned(0.45, 0); const gh = c.createBiquadFilter(); gh.type = 'highpass'; gh.frequency.value = 350;
-      gtr.connect(gh); gh.connect(gp); gp.connect(bus);
-      drums = c.createGain(); drums.connect(bus);
-      const dsend = c.createGain(); dsend.gain.value = 0.15; drums.connect(dsend); dsend.connect(verb);
-      noise = c.createBuffer(1, c.sampleRate, c.sampleRate);
-      const nd = noise.getChannelData(0); for (let i = 0; i < nd.length; i++) nd[i] = Math.random() * 2 - 1;
-    };
-
-    const ep = (n, t, dur, v) => { // Rhodes: two-operator FM, mellow
-      const f = mtof(n), car = ctx.createOscillator(), mod = ctx.createOscillator(), mg = ctx.createGain(), g = ctx.createGain();
-      car.frequency.value = f; mod.frequency.value = f;
-      mg.gain.setValueAtTime(f * 1.5 * v, t); mg.gain.exponentialRampToValueAtTime(f * 0.1, t + 0.8);
-      mod.connect(mg); mg.connect(car.frequency);
-      g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(0.17 * v, t + 0.006);
-      g.gain.setTargetAtTime(0.08 * v, t + 0.01, 0.5); g.gain.setTargetAtTime(0.0001, t + dur, 0.1);
-      car.connect(g); g.connect(keys); car.start(t); mod.start(t); car.stop(t + dur + 0.7); mod.stop(t + dur + 0.7);
-    };
-    const str = (n, t, dur, v) => { // string-machine ensemble: three detuned saws, slow swell
-      [-9, 0, 9].forEach(cents => {
-        const o = ctx.createOscillator(), g = ctx.createGain();
-        o.type = 'sawtooth'; o.frequency.value = mtof(n); o.detune.value = cents;
-        g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(0.022 * v, t + 0.35);
-        g.gain.setTargetAtTime(0.0001, t + dur, 0.3);
-        o.connect(g); g.connect(strings); o.start(t); o.stop(t + dur + 1.6);
-      });
-    };
-    const pluckBuf = n => { // Karplus-Strong string, cached per pitch
-      if (ks[n]) return ks[n];
-      const sr = ctx.sampleRate, f = mtof(n), N = Math.max(2, Math.round(sr / f)), len = Math.floor(sr * 0.6);
-      const buf = ctx.createBuffer(1, len, sr), d = buf.getChannelData(0), ring = new Float32Array(N);
-      for (let i = 0; i < N; i++) ring[i] = Math.random() * 2 - 1;
-      for (let i = 1; i < N; i++) ring[i] = 0.5 * (ring[i] + ring[i - 1]);
-      for (let i = 0, idx = 0; i < len; i++) { const cur = ring[idx]; d[i] = cur; ring[idx] = 0.994 * 0.5 * (cur + ring[(idx + 1) % N]); idx = (idx + 1) % N; }
-      return (ks[n] = buf);
-    };
-    const scratch = (ns, t, v) => { // muted soul guitar double-stop
-      ns.forEach((n, j) => {
-        const s = ctx.createBufferSource(), g = ctx.createGain();
-        s.buffer = pluckBuf(n);
-        g.gain.setValueAtTime(0.4 * v, t + j * 0.008); g.gain.setTargetAtTime(0.0001, t + 0.09, 0.03);
-        s.connect(g); g.connect(gtr); s.start(t + j * 0.008); s.stop(t + 0.4);
-      });
-    };
-    const bass = (n, t, dur, v) => { // finger bass: round, short decay
-      const f = mtof(n), o = ctx.createOscillator(), s = ctx.createOscillator(), lp = ctx.createBiquadFilter(), g = ctx.createGain();
-      o.type = 'triangle'; o.frequency.value = f; s.frequency.value = f;
-      lp.type = 'lowpass'; lp.Q.value = 1.5; lp.frequency.setValueAtTime(1300, t); lp.frequency.exponentialRampToValueAtTime(450, t + 0.2);
-      g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(0.15 * v, t + 0.01);
-      g.gain.setTargetAtTime(0.07 * v, t + 0.02, 0.22); g.gain.setTargetAtTime(0.0001, t + dur, 0.04);
-      o.connect(lp); s.connect(lp); lp.connect(g); g.connect(bus); o.start(t); s.start(t); o.stop(t + dur + 0.3); s.stop(t + dur + 0.3);
-    };
-    const nz = (t, type, freq, q, dur, vol) => {
-      const src = ctx.createBufferSource(), f = ctx.createBiquadFilter(), g = ctx.createGain();
-      src.buffer = noise; f.type = type; f.frequency.value = freq; f.Q.value = q;
-      g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-      src.connect(f); f.connect(g); g.connect(drums); src.start(t, Math.random() * 0.5, dur + 0.02);
-    };
-    const drum = (t, type, v) => {
-      if (type === 'kick') {
-        const o = ctx.createOscillator(), g = ctx.createGain();
-        o.frequency.setValueAtTime(85, t); o.frequency.exponentialRampToValueAtTime(45, t + 0.1);
-        g.gain.setValueAtTime(0.45 * v, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.3);
-        o.connect(g); g.connect(drums); o.start(t); o.stop(t + 0.32);
-      } else if (type === 'snare') { // fat, damped 70s snare
-        nz(t, 'bandpass', 1900, 0.6, 0.24, 0.26 * v);
-        const o = ctx.createOscillator(), g = ctx.createGain();
-        o.type = 'triangle'; o.frequency.setValueAtTime(200, t); o.frequency.exponentialRampToValueAtTime(165, t + 0.06);
-        g.gain.setValueAtTime(0.16 * v, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.12);
-        o.connect(g); g.connect(drums); o.start(t); o.stop(t + 0.14);
-      } else if (type === 'hat') nz(t, 'highpass', 7500, 0.7, 0.045, 0.1 * v);
-      else if (type === 'open') nz(t, 'highpass', 7000, 0.7, 0.25, 0.07 * v);
-      else if (type === 'tamb') { [0, 0.012, 0.024].forEach(d => nz(t + d, 'bandpass', 8500, 2, 0.06, 0.05 * v)); }
-    };
-
-    const scheduleBar = (b, t0) => {
-      const fi = b % FORM.length, cyc = Math.floor(b / FORM.length), sec = Math.floor(fi / 8), inSec = fi % 8;
-      const chords = FORM[fi], per = 4 / chords.length, bridge = sec === 2;
-      const drop = cyc % 2 === 1 && sec === 3 && inSec < 2; // short breakdown before the last A on every other pass
-      const bassOn = b >= 2 && !drop, drumsOn = b >= 4 && !drop, extras = b >= 8;
-
-      chords.forEach((name, ci) => {
-        const ct = t0 + ci * per * SPB, [root] = CH[name], v4 = voicing(name, 62);
-        const slots = per * 4; // sixteenths in this chord
-        // Rhodes: a held chord, then a syncopated push, and a short fill now and then
-        ep(v4[0], ct + hum(), per * SPB * 0.9, 0.8); v4.slice(1).forEach((n, j) => ep(n, ct + (j + 1) * 0.007 + hum(), per * SPB * 0.9, 0.8));
-        if (per === 4) rnd([[10], [6, 14], [7], [10, 14]]).forEach(i => v4.forEach((n, j) => ep(n, ct + p16(i) + j * 0.006 + hum(), SPB * 0.4, 0.65)));
-        const fillBar = inSec % 2 === 1 && ci === chords.length - 1 && !(extras && (bridge || cyc >= 1));
-        if (fillBar && Math.random() < 0.75) {
-          const sc = inScale(name, 72, 86), start = sc.indexOf(nearest(sc, 79));
-          const run = rnd([[0, 1, 2, 1], [2, 1, 0, -1], [0, 2, 1, 3], [3, 2, 0, 1]]);
-          run.forEach((d, k) => ep(sc[Math.max(0, Math.min(sc.length - 1, start + d))], ct + p16(slots - 4 + k) + hum(), SPB * 0.3, 0.7));
-        }
-        // strings: a slow counter-line on chord tones from the second A, a pad before that
-        if (extras) {
-          const tones = voicing(name, 80).concat(voicing(name, 68));
-          if (bridge || cyc >= 1) {
-            const n1 = nearest(tones, lastLine + rnd([-2, -1, 1, 2])); str(n1, ct, per * SPB * (per === 4 ? 0.5 : 1), 1); lastLine = n1;
-            if (per === 4) { const n2 = nearest(tones.filter(n => n !== n1), lastLine + rnd([-3, -1, 1, 3])); str(n2, ct + 2 * SPB, 2 * SPB, 0.9); lastLine = n2; }
-          } else if (ci === 0 && inSec % 2 === 0) voicing(name, 66).forEach(n => str(n, ct, BAR * 2 * 0.95, 0.55));
-        }
-        // finger bass: root on the one, syncopated pickups, octave pop, approach into the next chord
-        if (bassOn) {
-          const nextName = ci + 1 < chords.length ? chords[ci + 1] : FORM[(fi + 1) % FORM.length][0];
-          let tgt = CH[nextName][0]; while (tgt - root > 6) tgt -= 12; while (root - tgt > 6) tgt += 12;
-          const pat = per === 4
-            ? rnd([[[0, root, 3], [3, root, 1], [6, root + 12, 1], [8, root + 7, 2], [11, root, 1], [14, tgt - 1, 1]],
-                   [[0, root, 2], [6, root, 1], [7, root + 7, 1], [10, root + 12, 2], [13, root + 10, 1], [15, tgt + 1, 1]],
-                   [[0, root, 4], [6, root + 7, 1], [8, root, 2], [11, root + 3 + (CH[name][2] === MIN ? 0 : 1), 1], [14, tgt - 2, 1]]])
-            : [[0, root, 3], [3, root + 7, 1], [6, tgt + (Math.random() < 0.5 ? -1 : 1), 1]];
-          pat.forEach(([i, n, l]) => bass(n, ct + p16(i) + hum(), l * SPB * 0.25 * 0.92, i === 0 ? 1 : 0.85));
-        }
-        // guitar: muted double-stops on the offbeats
-        if (extras && !drop) {
-          const top = voicing(name, 70).slice(-2);
-          (per === 4 ? [2, 6, 10, 14] : [2, 6]).forEach(i => scratch(top, ct + p16(i) + hum(), i % 4 === 2 ? 0.9 : 0.7));
-        }
-      });
-
-      // drums
-      if (drumsOn) {
-        for (let i = 0; i < 16; i++) if (!(i === 14 && inSec % 4 === 3)) drum(t0 + p16(i) + hum(), 'hat', [1, 0.45, 0.7, 0.5][i % 4]);
-        if (inSec % 4 === 3) drum(t0 + p16(14), 'open', 1);
-        rnd([[0, 7, 10], [0, 8, 10], [0, 3, 8, 11], [0, 10]]).forEach(i => drum(t0 + p16(i), 'kick', i === 0 ? 1 : 0.85));
-        [4, 12].forEach(i => drum(t0 + p16(i) + hum(), 'snare', 1));
-        if (Math.random() < 0.4) drum(t0 + p16(rnd([7, 9, 15])) + hum(), 'snare', 0.22);
-        if (bridge || cyc >= 1) [4, 12].forEach(i => drum(t0 + p16(i) + 0.01, 'tamb', 1));
-        if (inSec === 7) [12, 13, 14, 15].forEach((i, k) => drum(t0 + p16(i) + hum(), 'snare', 0.35 + k * 0.12));
-      } else if (b >= 2 && !drop) for (let i = 0; i < 8; i++) drum(t0 + p16(i * 2) + hum(), 'hat', i % 2 ? 0.5 : 0.8);
-    };
-
-    const tick = () => { while (nextBar < ctx.currentTime + 0.4) { scheduleBar(bar, nextBar); nextBar += BAR; bar++; } };
-    const fade = (to, secs) => {
-      const now = ctx.currentTime;
-      out.gain.cancelScheduledValues(now); out.gain.setValueAtTime(out.gain.value, now); out.gain.linearRampToValueAtTime(to, now + secs);
-    };
-    document.addEventListener('visibilitychange', () => {
-      if (!ctx || !ctx.suspend) return;
-      if (document.hidden) ctx.suspend(); else if (playing) ctx.resume();
-    });
-    return {
-      start(c) {
-        if (playing || !c) return;
-        if (!ctx) build(c);
-        playing = true;
-        if (nextBar < ctx.currentTime + 0.05) nextBar = ctx.currentTime + 0.12;
-        fade(LEVEL, 2.5);
-        tick(); timer = setInterval(tick, 50);
-      },
-      stop() {
-        if (!playing) return;
-        playing = false; clearInterval(timer); fade(0, 1.2);
-      },
-      render(c, bars) { // offline preview for testing; schedules `bars` bars from t = 0.1
-        build(c); out.gain.value = LEVEL; nextBar = 0.1;
-        for (let i = 0; i < bars; i++) { scheduleBar(i, nextBar); nextBar += BAR; }
-      }
-    };
-  })();
-  const soundBtn = $('#sound-btn');
-  const paintSound = () => {
-    soundBtn.setAttribute('aria-pressed', String(Sound.on));
-    soundBtn.setAttribute('aria-label', Sound.on ? 'Išjungti muziką' : 'Įjungti muziką');
-  };
-  paintSound();
-  soundBtn.addEventListener('click', () => { Sound.set(!Sound.on); paintSound(); Sound.play('tick'); });
-  // browsers only allow audio after a gesture: a returning visitor who left music on hears it from their first tap
-  if (Sound.on) {
-    const resume = e => { if (e.target.closest && e.target.closest('#sound-btn')) return; if (Sound.on) Music.start(Sound.audio()); };
-    window.addEventListener('pointerdown', resume, { once: true });
-    window.addEventListener('keydown', resume, { once: true });
-  }
-
   /* ---------- Menu ---------- */
   const menuBtn = $('#menu-btn'), menu = $('#menu'), main = $('main'), foot = $('.foot');
   let menuOpen = false;
@@ -811,7 +517,6 @@ button { font: inherit; color: inherit; }
     menuBtn.textContent = open ? 'Uždaryti' : 'Menu';
     main.inert = open;
     foot.inert = open;
-    Sound.play('thump');
     if (open) { const f = menu.querySelector('a'); if (f) f.focus({ preventScroll: true }); }
   };
   menuBtn.addEventListener('click', () => setMenu(!menuOpen));
@@ -831,12 +536,11 @@ button { font: inherit; color: inherit; }
   };
   const hidePreview = () => { mPrev.classList.remove('on'); mList.classList.remove('dim'); mLinks.forEach(x => x.classList.remove('on')); };
   mLinks.forEach(a => {
-    a.addEventListener('pointerenter', () => { showPreview(a); Sound.play('tick'); });
+    a.addEventListener('pointerenter', () => showPreview(a));
     a.addEventListener('focus', () => showPreview(a));
   });
   mList.addEventListener('pointerleave', hidePreview);
   mList.addEventListener('focusout', e => { if (!mList.contains(e.relatedTarget)) hidePreview(); });
-  $$('.menu .m-pages a').forEach(a => a.addEventListener('pointerenter', () => Sound.play('tick')));
 
   const clock = $('.clock');
   try {
@@ -862,7 +566,7 @@ button { font: inherit; color: inherit; }
     lbImg.alt = im.alt;
     lbCount.textContent = (gi + 1) + ' / ' + group.length;
   };
-  const step = d => { showLb(gi + d); Sound.play('blop'); };
+  const step = d => showLb(gi + d);
   $$('.ph').forEach(b => b.addEventListener('click', () => {
     group = $$('.ph[data-g="' + b.dataset.g + '"]').sort((x, y) => x.dataset.o - y.dataset.o);
     opener = b;
@@ -902,7 +606,7 @@ button { font: inherit; color: inherit; }
   const chapT = $('#chap-t'), chapS = $('#chap-s'), miniC = $('#mini-c');
   const ticks = $$('.tick');
 
-  const odometer = (el, withSound) => {
+  const odometer = el => {
     let cur = '';
     return val => {
       val = String(val);
@@ -937,13 +641,12 @@ button { font: inherit; color: inherit; }
           o.animate([{ transform: 'translateY(0)' }, { transform: 'translateY(-100%)' }], { duration: 400, delay, easing: EASE, fill: 'forwards' }).onfinish = () => o.remove();
         });
         nu.animate([{ transform: 'translateY(100%)' }, { transform: 'translateY(0)' }], { duration: 400, delay, easing: EASE, fill: 'backwards' });
-        if (withSound) setTimeout(() => Sound.play('roll'), delay);
       });
       setTimeout(() => { [...el.children].forEach((c, i) => { if (i >= cur.length) c.remove(); }); }, 460 + n * 30);
     };
   };
-  const setYear = odometer(counterEl, true);
-  const setMini = odometer(miniY, false);
+  const setYear = odometer(counterEl);
+  const setMini = odometer(miniY);
 
   let curChap = -1, curYr = null;
   const setChapter = ci => {
@@ -991,7 +694,6 @@ button { font: inherit; color: inherit; }
   update();
 
   ticks.forEach(t => {
-    t.addEventListener('pointerenter', () => Sound.play('tick'));
     t.addEventListener('click', () => {
       const y = Number(t.dataset.y);
       const list = $$('#entries .entry');
@@ -1045,7 +747,6 @@ button { font: inherit; color: inherit; }
       if (!en.isIntersecting) return;
       stamp.unobserve(en.target);
       en.target.animate([{ opacity: 0, transform: 'scale(1.12)' }, { opacity: 1, transform: 'scale(1)' }], { duration: 350, easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)', fill: 'backwards' });
-      Sound.play('stamp');
     }), { threshold: 0.6 });
     $$('.mile-word').forEach(m => stamp.observe(m));
 
@@ -1078,7 +779,6 @@ button { font: inherit; color: inherit; }
         if (!shown) { x = tx; y = ty; }
         shown = true;
         peek.classList.add('on');
-        Sound.play('tick');
         if (!raf) raf = requestAnimationFrame(loop);
       });
       t.addEventListener('pointermove', aim);
